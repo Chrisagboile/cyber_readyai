@@ -1,5 +1,6 @@
 <?php
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AssessmentController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -191,3 +192,42 @@ Route::middleware(['auth', 'verified', 'role:employee'])
         })->name('employee.learning-plans');
 
     });
+Route::middleware(['auth', 'verified'])->group(function () {
+
+    /*
+    |--------------------------------------------------------------------------
+    | Assessment
+    |--------------------------------------------------------------------------
+    */
+
+    Route::get(
+        '/assessment/start',
+        [AssessmentController::class, 'start']
+    )->name('assessment.start');
+
+    Route::get(
+        '/assessment/{attempt}/question/{question}',
+        [AssessmentController::class, 'question']
+    )->name('assessment.question');
+
+    Route::post(
+        '/assessment/{attempt}/question/{question}',
+        [AssessmentController::class, 'answer']
+    )->name('assessment.answer');
+
+    Route::get(
+        '/assessment/{attempt}/review',
+        [AssessmentController::class, 'review']
+    )->name('assessment.review');
+
+    Route::post(
+        '/assessment/{attempt}/submit',
+        [AssessmentController::class, 'submit']
+    )->name('assessment.submit');
+
+    Route::get(
+        '/assessment/{attempt}/result',
+        [AssessmentController::class, 'result']
+    )->name('assessment.result');
+
+});

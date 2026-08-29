@@ -46,7 +46,33 @@
                 </div>
             </div>
         </div>
+<div class="action-grid">
 
+    <a
+        href="{{ route('assessment.start') }}"
+        class="action-card"
+    >
+
+        <div class="action-icon">
+            🛡️
+        </div>
+
+        <h3 class="action-title">
+            Cybersecurity Assessment
+        </h3>
+
+        <p class="action-description">
+            Complete your cybersecurity awareness
+            assessment and receive your security score.
+        </p>
+
+        <span class="action-button">
+            Start Assessment →
+        </span>
+
+    </a>
+
+</div>
     </div>
 
 </div>
