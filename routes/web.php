@@ -2,6 +2,8 @@
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AssessmentController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ManagerAssessmentController;
+// use  Illuminate\Support\Facades\Auth;
 
 /*
 |--------------------------------------------------------------------------
@@ -44,7 +46,6 @@ Route::post('/logout', [AuthController::class, 'logout'])
 Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::get('/dashboard', function () {
-
         $role = auth()->user()->role?->slug;
 
         return match ($role) {
@@ -231,3 +232,28 @@ Route::middleware(['auth', 'verified'])->group(function () {
     )->name('assessment.result');
 
 });
+
+/*
+/========================================================
+/
+/  Manager: assessment question generation
+/=========================================================
+*/
+    Route::middleware([
+        'auth',
+        'verified',
+        'role:manager'
+    ])->prefix('manager')->name('manager.')->group(function () {
+
+        Route::get(
+            '/assessments/create',
+            [ManagerAssessmentController::class, 'create']
+        )->name('assessments.create');
+
+
+        Route::post(
+            '/assessments/generate',
+            [ManagerAssessmentController::class, 'generate']
+        )->name('assessments.generate');
+
+    });

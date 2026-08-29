@@ -46,6 +46,30 @@
             </div>
         </div>
 
+                <a
+            href="{{ route('manager.assessments.create') }}"
+            class="action-card"
+        >
+
+            <div class="action-icon">
+                📝
+            </div>
+
+            <h3 class="action-title">
+                Create Assessment
+            </h3>
+
+            <p class="action-description">
+                Select cybersecurity categories and generate
+                a random assessment for an employee.
+            </p>
+
+            <span class="action-button">
+                Create Assessment →
+            </span>
+
+        </a>
+
     </div>
 
 </div>
