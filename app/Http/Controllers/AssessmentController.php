@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\AssessmentAttempt;
 use App\Models\AssessmentAnswer;
+use App\Models\AssessmentAttempt;
+use App\Models\EmployeeQuestion;
 use App\Models\Question;
 use App\Models\QuestionOption;
 use Illuminate\Http\Request;
-
 
 class AssessmentController extends Controller
 {
@@ -18,9 +18,14 @@ class AssessmentController extends Controller
     {
         $user = $request->user();
 
-        $questions = Question::with('options')
-            ->orderBy('id')
-            ->get();
+        // Get questions assigned to this employee.
+        $questions = Question::whereIn('id', function ($query) use ($user) {
+            $query->select('question_id')
+                ->from('employee_questions')
+                ->where('employee_id', $user->id);
+        })
+        ->orderBy('id')
+        ->get();
 
         if ($questions->isEmpty()) {
             return back()->with(
@@ -33,8 +38,28 @@ class AssessmentController extends Controller
             'user_id' => $user->id,
             'status' => 'in_progress',
             'total_questions' => $questions->count(),
+            'answered_questions' => 0,
+            'correct_answers' => 0,
+            'score_percentage' => 0,
             'started_at' => now(),
         ]);
+
+        /*
+         * Create the questions for this particular attempt.
+         */
+        foreach ($questions as $index => $question) {
+
+            EmployeeQuestion::updateOrCreate(
+                [
+                    'employee_id' => $user->id,
+                    'question_id' => $question->id,
+                    'assessment_attempt_id' => $attempt->id,
+                ],
+                [
+                    'question_order' => $index + 1,
+                ]
+            );
+        }
 
         return redirect()->route(
             'assessment.question',
@@ -44,6 +69,7 @@ class AssessmentController extends Controller
             ]
         );
     }
+
 
     /**
      * Display one question.
@@ -62,33 +88,60 @@ class AssessmentController extends Controller
             );
         }
 
-        $questions = Question::with([
-            'options',
-            'category'
-        ])
-            ->orderBy('id')
-            ->get();
+        /*
+         * Get the employee's questions for THIS attempt
+         * in the correct order.
+         */
+        $employeeQuestions = EmployeeQuestion::where(
+            'employee_id',
+            $request->user()->id
+        )
+        ->where(
+            'assessment_attempt_id',
+            $attempt->id
+        )
+        ->orderBy('question_order')
+        ->get();
 
-        $total = $questions->count();
+        $total = $employeeQuestions->count();
 
         if ($question < 1 || $question > $total) {
             abort(404);
         }
 
-        $currentQuestion = $questions->values()->get(
+        /*
+         * Get the EmployeeQuestion at the current position.
+         */
+        $employeeQuestion = $employeeQuestions->get(
             $question - 1
         );
 
+        /*
+         * Get the actual Question.
+         */
+        $currentQuestion = Question::with([
+            'options',
+            'category',
+        ])->findOrFail(
+            $employeeQuestion->question_id
+        );
+
+        /*
+         * Get previously saved answer.
+         */
         $answer = AssessmentAnswer::where(
             'assessment_attempt_id',
             $attempt->id
         )
-            ->where(
-                'question_id',
-                $currentQuestion->id
-            )
-            ->first();
+        ->where(
+            'question_id',
+            $currentQuestion->id
+        )
+        ->first();
 
+        /*
+         * Number of questions already answered.
+         */
         $answeredCount = AssessmentAnswer::where(
             'assessment_attempt_id',
             $attempt->id
@@ -107,8 +160,9 @@ class AssessmentController extends Controller
         );
     }
 
+
     /**
-     * Store/update an answer.
+     * Store/update an answer and move to next question.
      */
     public function answer(
         Request $request,
@@ -129,26 +183,57 @@ class AssessmentController extends Controller
             ],
         ]);
 
-        $questions = Question::orderBy('id')->get();
+        /*
+         * Get employee questions in the correct order.
+         */
+        $employeeQuestions = EmployeeQuestion::where(
+            'employee_id',
+            $request->user()->id
+        )
+        ->where(
+            'assessment_attempt_id',
+            $attempt->id
+        )
+        ->orderBy('question_order')
+        ->get();
 
-        $currentQuestion = $questions->values()->get(
-            $question - 1
-        );
+        $total = $employeeQuestions->count();
 
-        if (!$currentQuestion) {
+        if ($question < 1 || $question > $total) {
             abort(404);
         }
 
+        /*
+         * Get the current EmployeeQuestion.
+         */
+        $employeeQuestion = $employeeQuestions->get(
+            $question - 1
+        );
+
+        /*
+         * Get the actual question.
+         */
+        $currentQuestion = Question::findOrFail(
+            $employeeQuestion->question_id
+        );
+
+        /*
+         * Make sure the selected option belongs
+         * to the current question.
+         */
         $option = QuestionOption::where(
             'id',
             $request->question_option_id
         )
-            ->where(
-                'question_id',
-                $currentQuestion->id
-            )
-            ->firstOrFail();
+        ->where(
+            'question_id',
+            $currentQuestion->id
+        )
+        ->firstOrFail();
 
+        /*
+         * Save/update answer.
+         */
         AssessmentAnswer::updateOrCreate(
             [
                 'assessment_attempt_id' => $attempt->id,
@@ -160,13 +245,24 @@ class AssessmentController extends Controller
             ]
         );
 
+        /*
+         * Update answered count.
+         */
+        $answeredQuestions = AssessmentAnswer::where(
+            'assessment_attempt_id',
+            $attempt->id
+        )->count();
+
         $attempt->update([
-            'answered_questions' => $attempt->answers()->count(),
+            'answered_questions' => $answeredQuestions,
         ]);
 
+        /*
+         * Move to next question.
+         */
         $nextQuestion = $question + 1;
 
-        if ($nextQuestion <= $questions->count()) {
+        if ($nextQuestion <= $total) {
             return redirect()->route(
                 'assessment.question',
                 [
@@ -176,11 +272,93 @@ class AssessmentController extends Controller
             );
         }
 
+        /*
+         * No more questions.
+         * Go to review page.
+         */
         return redirect()->route(
             'assessment.review',
             $attempt
         );
     }
+
+
+    /**
+     * Go to previous question.
+     */
+    public function previous(
+        Request $request,
+        AssessmentAttempt $attempt,
+        int $question
+    ) {
+        $this->authoriseAttempt($request, $attempt);
+
+        $previousQuestion = $question - 1;
+
+        /*
+         * If already on question 1,
+         * stay on question 1.
+         */
+        if ($previousQuestion < 1) {
+            return redirect()->route(
+                'assessment.question',
+                [
+                    'attempt' => $attempt->id,
+                    'question' => 1,
+                ]
+            );
+        }
+
+        return redirect()->route(
+            'assessment.question',
+            [
+                'attempt' => $attempt->id,
+                'question' => $previousQuestion,
+            ]
+        );
+    }
+
+
+    /**
+     * Go to next question without saving.
+     *
+     * Useful if you have a separate Next button.
+     */
+    public function next(
+        Request $request,
+        AssessmentAttempt $attempt,
+        int $question
+    ) {
+        $this->authoriseAttempt($request, $attempt);
+
+        $total = EmployeeQuestion::where(
+            'employee_id',
+            $request->user()->id
+        )
+        ->where(
+            'assessment_attempt_id',
+            $attempt->id
+        )
+        ->count();
+
+        $nextQuestion = $question + 1;
+
+        if ($nextQuestion > $total) {
+            return redirect()->route(
+                'assessment.review',
+                $attempt
+            );
+        }
+
+        return redirect()->route(
+            'assessment.question',
+            [
+                'attempt' => $attempt->id,
+                'question' => $nextQuestion,
+            ]
+        );
+    }
+
 
     /**
      * Review answers before submitting.
@@ -191,12 +369,29 @@ class AssessmentController extends Controller
     ) {
         $this->authoriseAttempt($request, $attempt);
 
+        $employeeQuestions = EmployeeQuestion::where(
+            'employee_id',
+            $request->user()->id
+        )
+        ->where(
+            'assessment_attempt_id',
+            $attempt->id
+        )
+        ->orderBy('question_order')
+        ->pluck('question_id');
+
         $questions = Question::with([
             'options',
-            'category'
+            'category',
         ])
-            ->orderBy('id')
-            ->get();
+        ->whereIn('id', $employeeQuestions)
+        ->get()
+        ->sortBy(function ($question) use ($employeeQuestions) {
+            return $employeeQuestions->search(
+                $question->id
+            );
+        })
+        ->values();
 
         $answers = $attempt->answers()
             ->with('option')
@@ -212,6 +407,7 @@ class AssessmentController extends Controller
             )
         );
     }
+
 
     /**
      * Submit and grade assessment.
@@ -244,7 +440,9 @@ class AssessmentController extends Controller
             )
             : 0;
 
-        $riskLevel = $this->calculateRiskLevel($score);
+        $riskLevel = $this->calculateRiskLevel(
+            $score
+        );
 
         $attempt->update([
             'status' => 'completed',
@@ -261,6 +459,7 @@ class AssessmentController extends Controller
         );
     }
 
+
     /**
      * Display result.
      */
@@ -270,13 +469,16 @@ class AssessmentController extends Controller
     ) {
         $this->authoriseAttempt($request, $attempt);
 
-        $attempt->load('answers.question.category');
+        $attempt->load(
+            'answers.question.category'
+        );
 
         return view(
             'assessment.result',
             compact('attempt')
         );
     }
+
 
     /**
      * Determine risk level from score.
@@ -294,6 +496,7 @@ class AssessmentController extends Controller
 
         return 'High';
     }
+
 
     /**
      * Ensure users can only access their own attempts.
