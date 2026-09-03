@@ -4,7 +4,6 @@ use App\Http\Controllers\AssessmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ManagerAssessmentController;
 // use  Illuminate\Support\Facades\Auth;
-
 /*
 |--------------------------------------------------------------------------
 | Public Routes
@@ -193,16 +192,26 @@ Route::middleware(['auth', 'verified', 'role:employee'])
         })->name('employee.learning-plans');
 
     });
-Route::middleware(['auth', 'verified'])->group(function () {
+//Route::middleware(['auth', 'verified'])->group(function () {
 
     /*
     |--------------------------------------------------------------------------
     | Assessment
     |--------------------------------------------------------------------------
     */
+    Route::middleware([
+        'auth',
+        'verified',
+        'role:employee',
+    ])->group(function () {
+        // assessment routes
+    Route::get(
+        '/assessments',
+        [AssessmentController::class, 'index']
+    )->name('assessment.index');
 
     Route::get(
-        '/assessment/start',
+        '/assessment/{assessment}/start',
         [AssessmentController::class, 'start']
     )->name('assessment.start');
 
@@ -231,8 +240,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
         [AssessmentController::class, 'result']
     )->name('assessment.result');
 
-});
-
+  //  });
+ });
 /*
 /========================================================
 /
@@ -244,16 +253,34 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'verified',
         'role:manager'
     ])->prefix('manager')->name('manager.')->group(function () {
+/*
+    Route::get(
+        '/manager/assessments',
+        [ManagerAssessmentController::class, 'index']
+    )->name('manager.assessments.index');
+
+    Route::get(
+        '/manager/assessments/create',
+        [ManagerAssessmentController::class, 'create']
+    )->name('manager.assessments.create');
+
+    Route::post(
+        '/manager/assessments',
+        [ManagerAssessmentController::class, 'generate']
+    )->name('manager.assessments.generate');
+*/
+        Route::get(
+            '/assessments',
+            [ManagerAssessmentController::class, 'index']
+        )->name('assessments.index');
 
         Route::get(
             '/assessments/create',
             [ManagerAssessmentController::class, 'create']
         )->name('assessments.create');
 
-
         Route::post(
-            '/assessments/generate',
+            '/assessments',
             [ManagerAssessmentController::class, 'generate']
         )->name('assessments.generate');
-
     });

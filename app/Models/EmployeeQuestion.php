@@ -11,11 +11,11 @@ class EmployeeQuestion extends Model
 
     protected $fillable = [
         'employee_id',
+        'assessment_id',
         'question_id',
         'question_order',
         'assessment_attempt_id',
     ];
-
 
     public function employee(): BelongsTo
     {
@@ -25,6 +25,12 @@ class EmployeeQuestion extends Model
         );
     }
 
+    public function assessment(): BelongsTo
+    {
+        return $this->belongsTo(
+            Assessment::class
+        );
+    }
 
     public function question(): BelongsTo
     {
@@ -32,7 +38,6 @@ class EmployeeQuestion extends Model
             Question::class
         );
     }
-
 
     public function attempt(): BelongsTo
     {

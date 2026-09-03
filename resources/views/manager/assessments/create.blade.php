@@ -222,8 +222,72 @@
 
         </div>
 
+        <div class="form-group">
+            <label for="assessment_name">
+                Assessment Name
+            </label>
 
-        {{-- Submit --}}
+            <input
+                type="text"
+                id="assessment_name"
+                name="assessment_name"
+                value="{{ old('assessment_name') }}"
+                class="form-control"
+                placeholder="e.g. Cybersecurity Awareness Assessment"
+                required
+            >
+
+            @error('assessment_name')
+                <div class="form-error">
+                    {{ $message }}
+                </div>
+            @enderror
+        </div>
+
+
+        <div class="form-group">
+        <label for="duration_minutes">
+            Duration
+        </label>
+
+        <select
+            id="duration_minutes"
+            name="duration_minutes"
+            class="form-control"
+            required
+        >
+            <option value="15">
+                15 minutes
+            </option>
+
+            <option value="30" selected>
+                30 minutes
+            </option>
+
+            <option value="45">
+                45 minutes
+            </option>
+
+            <option value="60">
+                60 minutes
+            </option>
+
+            <option value="90">
+                90 minutes
+            </option>
+
+            <option value="120">
+                120 minutes
+            </option>
+        </select>
+
+        @error('duration_minutes')
+            <div class="form-error">
+                {{ $message }}
+            </div>
+        @enderror
+    </div>
+            {{-- Submit --}}
 
         <div class="form-actions">
 

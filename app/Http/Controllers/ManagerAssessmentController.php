@@ -2,18 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Assessment;
 use App\Models\Category;
+use App\Models\EmployeeQuestion;
 use App\Models\Question;
 use App\Models\User;
-use App\Models\EmployeeQuestion;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class ManagerAssessmentController extends Controller
 {
-    /**
-     * Display assessment creation page.
-     */
     public function create()
     {
         $categories = Category::orderBy('name')->get();
@@ -32,61 +30,69 @@ class ManagerAssessmentController extends Controller
             )
         );
     }
+    public function index(Request $request)
+    {
+        $assessments = Assessment::with([
+            'employeeQuestions',
+        ])
+        ->where('created_by', $request->user()->id)
+        ->withCount('attempts')
+        ->orderByDesc('created_at')
+        ->paginate(15);
 
-
-    /**
-     * Generate random questions.
-     */
-    public function generate(Request $request)
+        return view(
+            'manager.assessments.index',
+            compact('assessments')
+        );
+    }
+        public function generate(Request $request)
     {
         $validated = $request->validate([
+            'assessment_name' => [
+                'required',
+                'string',
+                'max:255',
+            ],
+
             'employee_id' => [
                 'required',
-                'exists:users,id'
+                'exists:users,id',
             ],
 
             'category_ids' => [
                 'required',
                 'array',
-                'min:1'
+                'min:1',
             ],
 
             'category_ids.*' => [
                 'integer',
-                'exists:categories,id'
+                'exists:categories,id',
             ],
 
             'question_quantity' => [
                 'required',
                 'integer',
                 'min:1',
-                'max:200'
+                'max:200',
+            ],
+
+            'duration_minutes' => [
+                'required',
+                'integer',
+                'min:1',
+                'max:240',
             ],
         ]);
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Verify employee
-        |--------------------------------------------------------------------------
-        */
 
         $employee = User::findOrFail(
             $validated['employee_id']
         );
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Find available questions
-        |--------------------------------------------------------------------------
-        */
-
         $availableQuestions = Question::whereIn(
             'category_id',
             $validated['category_ids']
         )->count();
-
 
         if (
             $validated['question_quantity']
@@ -96,67 +102,58 @@ class ManagerAssessmentController extends Controller
                 ->withInput()
                 ->withErrors([
                     'question_quantity' =>
-                        "Only {$availableQuestions} questions are available "
-                        . "in the selected categories."
+                        "Only {$availableQuestions} questions are "
+                        . "available in the selected categories.",
                 ]);
         }
-
-
-        /*
-        |--------------------------------------------------------------------------
-        | Randomly select questions
-        |--------------------------------------------------------------------------
-        */
 
         $questions = Question::whereIn(
             'category_id',
             $validated['category_ids']
         )
         ->inRandomOrder()
-        ->limit(
-            $validated['question_quantity']
-        )
+        ->limit($validated['question_quantity'])
         ->get();
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Store selected questions
-        |--------------------------------------------------------------------------
-        */
-
-        DB::transaction(function () use (
-            $employee,
-            $questions
-        ) {
-
-            foreach (
-                $questions as $index => $question
+        $assessment = DB::transaction(
+            function () use (
+                $validated,
+                $employee,
+                $questions
             ) {
-
-                EmployeeQuestion::create([
-                    'employee_id' =>
-                        $employee->id,
-
-                    'question_id' =>
-                        $question->id,
-
-                    'question_order' =>
-                        $index + 1,
+                $assessment = Assessment::create([
+                    'name' => $validated['assessment_name'],
+                    'created_by' => auth()->id(),
+                    'employee_id' => $employee->id,
+                    'status' => 'active',
+                    'total_questions' => $questions->count(),
+                    'duration_minutes' =>
+                        $validated['duration_minutes'],
                 ]);
+
+                foreach (
+                    $questions as $index => $question
+                ) {
+                    EmployeeQuestion::create([
+                        'employee_id' => $employee->id,
+                        'assessment_id' => $assessment->id,
+                        'question_id' => $question->id,
+                        'question_order' => $index + 1,
+                        'assessment_attempt_id' => null,
+                    ]);
+                }
+
+                return $assessment;
             }
-
-        });
-
+        );
 
         return redirect()
-            ->route(
-                'manager.assessments.create'
-            )
+            ->route('manager.assessments.create')
             ->with(
                 'success',
-                $questions->count()
-                . ' questions generated successfully.'
+                "Assessment '{$assessment->name}' created "
+                . "successfully with {$assessment->total_questions} "
+                . "questions."
             );
     }
 }

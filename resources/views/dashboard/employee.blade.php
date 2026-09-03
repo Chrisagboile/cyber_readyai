@@ -49,7 +49,7 @@
 <div class="action-grid">
 
     <a
-        href="{{ route('assessment.start') }}"
+        href="#"
         class="action-card"
     >
 
@@ -72,6 +72,22 @@
 
     </a>
 
+    <a
+        href="{{ route('assessment.index') }}"
+        class="action-card"
+    >
+        <div class="action-icon">
+            📋
+        </div>
+
+        <div class="action-title">
+            My Assessments
+        </div>
+
+        <div class="action-description">
+            Complete your assigned cybersecurity assessments.
+        </div>
+    </a>
 </div>
     </div>
 

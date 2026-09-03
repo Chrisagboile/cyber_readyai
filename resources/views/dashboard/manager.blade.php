@@ -47,7 +47,7 @@
         </div>
 
                 <a
-            href="{{ route('manager.assessments.create') }}"
+            href="#"
             class="action-card"
         >
 
@@ -69,7 +69,22 @@
             </span>
 
         </a>
+    <a
+        href="{{ route('manager.assessments.index') }}"
+        class="action-card"
+    >
+        <div class="action-icon">
+            📋
+        </div>
 
+        <div class="action-title">
+            Assessments
+        </div>
+
+        <div class="action-description">
+            Create and monitor employee assessments.
+        </div>
+    </a>
     </div>
 
 </div>
