@@ -3,6 +3,9 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AssessmentController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ManagerAssessmentController;
+use App\Http\Controllers\Auth\NewPasswordController;
+use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\ProfileController;
 // use  Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
@@ -209,6 +212,10 @@ Route::middleware(['auth', 'verified', 'role:employee'])
         '/assessments',
         [AssessmentController::class, 'index']
     )->name('assessment.index');
+    Route::get(
+        '/assessment/{attempt}/question/{question}/previous',
+        [AssessmentController::class, 'previous']
+    )->name('assessment.previous');
 
     Route::get(
         '/assessment/{assessment}/start',
@@ -242,6 +249,36 @@ Route::middleware(['auth', 'verified', 'role:employee'])
 
   //  });
  });
+ /*
+ /==================================================
+ /  Password: reset and management
+ /
+ /==================================================
+ */
+
+Route::middleware('guest')->group(function () {
+
+    Route::get(
+        '/forgot-password',
+        [PasswordResetLinkController::class, 'create']
+    )->name('password.request');
+
+    Route::post(
+        '/forgot-password',
+        [PasswordResetLinkController::class, 'store']
+    )->name('password.email');
+
+    Route::get(
+        '/reset-password/{token}',
+        [NewPasswordController::class, 'create']
+    )->name('password.reset');
+
+    Route::post(
+        '/reset-password',
+        [NewPasswordController::class, 'store']
+    )->name('password.update');
+});
+
 /*
 /========================================================
 /
@@ -284,3 +321,31 @@ Route::middleware(['auth', 'verified', 'role:employee'])
             [ManagerAssessmentController::class, 'generate']
         )->name('assessments.generate');
     });
+/*
+/=============================================================
+/
+/ Profile management
+/==============================================================
+*/
+
+Route::middleware([
+    'auth',
+    'verified',
+])->group(function () {
+
+    Route::get(
+        '/profile',
+        [ProfileController::class, 'edit']
+    )->name('profile.edit');
+
+    Route::put(
+        '/profile',
+        [ProfileController::class, 'update']
+    )->name('profile.update');
+
+    Route::put(
+        '/profile/password',
+        [ProfileController::class, 'updatePassword']
+    )->name('profile.password.update');
+
+});

@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'cyberreadyai' => [
+        'assessment_model' => env(
+            'OPENAI_ASSESSMENT_MODEL',
+            'gpt-5.6-luna'
+        ),
+    ],
+
 ];

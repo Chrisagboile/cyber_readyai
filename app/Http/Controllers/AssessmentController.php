@@ -5,14 +5,26 @@ namespace App\Http\Controllers;
 use App\Models\Assessment;
 use App\Models\AssessmentAnswer;
 use App\Models\AssessmentAttempt;
-use App\Models\EmployeeQuestion;
+// use App\Models\EmployeeQuestion;
 use App\Models\Question;
 use App\Models\QuestionOption;
+use App\Services\AiAssessmentInsightService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 
 class AssessmentController extends Controller
 {
+
+    public function index(Request $request)
+    {
+        $user = $request->user();
+
+        $assessments = Assessment::where('employee_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate(10);
+
+        return view('assessment.index', compact('assessments'));
+    }
     public function start(
         Request $request,
         Assessment $assessment
@@ -520,9 +532,10 @@ class AssessmentController extends Controller
         );
     }
 
-    public function result(
+ /*   public function result(
         Request $request,
-        AssessmentAttempt $attempt
+        AssessmentAttempt $attempt,
+        AiAssessmentInsightService $aiService
     ) {
         $this->authoriseAttempt(
             $request,
@@ -533,14 +546,71 @@ class AssessmentController extends Controller
             'assessment',
             'answers.question.category',
             'answers.option',
+            'aiInsight',
         ]);
+
+        if (
+            $attempt->status === 'completed'
+            || $attempt->status === 'expired'
+        ) {
+            $insight = $attempt->aiInsight;
+
+            if (! $insight) {
+                $insight = $aiService->generate($attempt);
+            }
+        } else {
+            $insight = null;
+        }
 
         return view(
             'assessment.result',
-            compact('attempt')
+            compact(
+                'attempt',
+                'insight'
+            )
+        );
+    }*/
+
+    public function result(
+        Request $request,
+        AssessmentAttempt $attempt,
+        AiAssessmentInsightService $aiService
+    ) {
+        $this->authoriseAttempt(
+            $request,
+            $attempt
+        );
+
+        $attempt->load([
+            'assessment',
+            'answers.question.category',
+            'answers.option',
+            'aiInsight',
+        ]);
+
+        $insight = null;
+
+        if (
+            $attempt->status === 'completed'
+            || $attempt->status === 'expired'
+        ) {
+            $insight = $attempt->aiInsight;
+
+            if (! $insight) {
+                $insight = $aiService->generate(
+                    $attempt
+                );
+            }
+        }
+
+        return view(
+            'assessment.result',
+            compact(
+                'attempt',
+                'insight'
+            )
         );
     }
-
     private function completeAttempt(
         AssessmentAttempt $attempt
     ): void {
@@ -652,7 +722,55 @@ class AssessmentController extends Controller
 
         return 'High';
     }
+/*
+    public function previous(
+        Request $request,
+        AssessmentAttempt $attempt,
+        int $question
+    ) {
+        $this->authoriseAttempt($request, $attempt);
 
+        if ($attempt->status !== 'in_progress') {
+            return redirect()->route('assessment.result', $attempt);
+        }
+
+        if (
+            $attempt->expires_at &&
+            $attempt->expires_at->isPast()
+        ) {
+            $this->expireAttempt($attempt);
+
+            return redirect()->route(
+                'assessment.result',
+                $attempt
+            );
+        }
+
+        $employeeQuestions = $attempt
+            ->employeeQuestions()
+            ->get();
+
+        $total = $employeeQuestions->count();
+
+        if ($question < 1 || $question > $total) {
+            abort(404);
+        }
+
+        $previousPosition = max(1, $question - 1);
+
+        $attempt->update([
+            'current_position' => $previousPosition,
+        ]);
+
+        return redirect()->route(
+            'assessment.question',
+            [
+                'attempt' => $attempt->id,
+                'question' => $previousPosition,
+            ]
+        );
+    }
+*/
     private function authoriseAttempt(
         Request $request,
         AssessmentAttempt $attempt
@@ -664,28 +782,5 @@ class AssessmentController extends Controller
             abort(403);
         }
     }
-    public function index(Request $request)
-    {
-        $user = $request->user();
 
-        $assessments = Assessment::where(
-            'employee_id',
-            $user->id
-        )
-        ->with([
-            'attempts' => function ($query) use ($user) {
-                $query->where(
-                    'user_id',
-                    $user->id
-                );
-            },
-        ])
-        ->orderByDesc('created_at')
-        ->paginate(10);
-
-        return view(
-            'assessment.index',
-            compact('assessments')
-        );
-    }
 }

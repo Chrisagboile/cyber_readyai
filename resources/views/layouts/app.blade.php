@@ -173,8 +173,7 @@
 
 
             {{-- Super Admin --}}
-            @if(auth()->user()->hasRole('super-admin'))
-
+            @if(auth()->check() && auth()->user()->hasRole('super-admin'))
                 <div class="nav-title">Administration</div>
 
                 <a
@@ -216,8 +215,7 @@
 
 
             {{-- Organisation Admin --}}
-            @if(auth()->user()->hasRole('organisation-admin'))
-
+            @if(auth()->check() && auth()->user()->hasRole('organisation-admin'))
                 <div class="nav-title">Organisation</div>
 
                 <a
@@ -259,8 +257,7 @@
 
 
             {{-- Manager --}}
-            @if(auth()->user()->hasRole('manager'))
-
+            @if(auth()->check() && auth()->user()->hasRole('manager'))
                 <div class="nav-title">Management</div>
 
                 <a
@@ -295,7 +292,7 @@
 
 
             {{-- Employee --}}
-            @if(auth()->user()->hasRole('employee'))
+            @if(auth()->check() && auth()->user()->hasRole('employee'))
 
                 <div class="nav-title">My Learning</div>
 
@@ -333,7 +330,7 @@
 
     </aside>
 
-
+@auth
     {{-- Main Content --}}
     <main class="main">
 
@@ -362,8 +359,11 @@
                         {{ auth()->user()->role?->name }}
                     </small>
                 </div>
-
-                <form
+    @endauth
+            <a href="{{ route('profile.edit') }}">
+                My Profile
+            </a>
+        <form
                     method="POST"
                     action="{{ route('logout') }}"
                 >

@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 
 class AssessmentAttempt extends Model
 {
@@ -57,5 +58,11 @@ class AssessmentAttempt extends Model
             EmployeeQuestion::class,
             'assessment_attempt_id'
         )->orderBy('question_order');
+    }
+    public function aiInsight(): HasOne
+    {
+        return $this->hasOne(
+            AiAssessmentInsight::class
+        );
     }
 }
