@@ -194,7 +194,7 @@ class DepartmentController extends Controller
             abort(403);
         }
 
-        $this->authorizeDepartmentAccess($user, $department);
+       $this->authorizeDepartmentAccess($department);
 
         $organisations = $user->hasRole('super-admin')
             ? Organisation::where('status', 'active')->orderBy('name')->get()

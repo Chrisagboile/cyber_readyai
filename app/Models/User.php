@@ -16,11 +16,12 @@ use App\Models\LearningPlan;
 #[Fillable([
     'name',
     'username',
-    'email',
-    'password',
     'role_id',
     'organisation_id',
     'department_id',
+    'email',
+    'password',
+    'status',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable

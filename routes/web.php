@@ -1,17 +1,22 @@
 <?php
+use App\Http\Controllers\OrganisationTrainingController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\LearningPlanController;
 use App\Http\Controllers\ManagerAssessmentController;
-use App\Http\Controllers\ProfileController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\DepartmentController;
-use App\Http\Controllers\ManagerTeamReadinessController;
 use App\Http\Controllers\ManagerDepartmentReportsController;
 use App\Http\Controllers\ManagerRiskDashboardController;
+use App\Http\Controllers\ManagerTeamReadinessController;
+use App\Http\Controllers\OrganisationAdminDashboardController;
+use App\Http\Controllers\OrganisationAssessmentController;
+use App\Http\Controllers\OrganisationReportController;
+use App\Http\Controllers\OrganisationUserController;
+use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
 // use  Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
@@ -62,7 +67,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
                 view('dashboard.super-admin'),
 
             'organisation-admin' =>
-                view('dashboard.organisation-admin'),
+                redirect()->route('organisation.dashboard'),
 
             'manager' =>
                 view('dashboard.manager'),
@@ -122,14 +127,62 @@ Route::middleware(['auth', 'verified', 'role:organisation-admin'])
     ->prefix('organisation')
     ->group(function () {
 
-        Route::get('/dashboard', function () {
-            return view('dashboard.organisation-admin');
-        })->name('organisation.dashboard');
+        Route::get(
+            '/dashboard',
+            [OrganisationAdminDashboardController::class, 'index']
+        )->name('organisation.dashboard');
 
-        Route::get('/users', function () {
-            return view('users.index');
-        })->name('organisation.users');
+        Route::patch(
+            '/users/{user}/toggle-status',
+            [OrganisationUserController::class, 'toggleStatus']
+        )->name('organisation.users.toggle-status');
 
+        Route::get(
+            '/users',
+            [OrganisationUserController::class, 'index']
+        )->name('organisation.users');
+
+        Route::get(
+            '/users/create',
+            [OrganisationUserController::class, 'create']
+        )->name('organisation.users.create');
+
+        Route::post(
+            '/users',
+            [OrganisationUserController::class, 'store']
+        )->name('organisation.users.store');
+
+        Route::get(
+            '/users/{user}/edit',
+            [OrganisationUserController::class, 'edit']
+        )->name('organisation.users.edit');
+
+        Route::put(
+            '/users/{user}',
+            [OrganisationUserController::class, 'update']
+        )->name('organisation.users.update');
+
+        Route::delete(
+            '/users/{user}',
+            [OrganisationUserController::class, 'destroy']
+        )->name('organisation.users.destroy');
+
+        Route::get(
+            '/assessments',
+            [OrganisationAssessmentController::class, 'index']
+        )->name('organisation.assessments');
+
+        Route::get(
+            '/assessments/create',
+            [OrganisationAssessmentController::class, 'create']
+        )->name('organisation.assessments.create');
+
+        Route::post(
+            '/assessments',
+            [OrganisationAssessmentController::class, 'generate']
+        )->name('organisation.assessments.generate');
+
+/*
         Route::get('/assessments', function () {
             return view('assessments.index');
         })->name('organisation.assessments');
@@ -137,14 +190,22 @@ Route::middleware(['auth', 'verified', 'role:organisation-admin'])
         Route::get('/reports', function () {
             return view('reports.index');
         })->name('organisation.reports');
+*/
+        Route::get(
+            '/reports',
+            [OrganisationReportController::class, 'index']
+        )->name('organisation.reports');
 
-        Route::get('/training', function () {
+        Route::get(
+            '/training',
+            [OrganisationTrainingController::class, 'index']
+        )->name('organisation.training');
+
+  /*      Route::get('/training', function () {
             return view('training.index');
         })->name('organisation.training');
-
+*/
     });
-
-
 /*
 |--------------------------------------------------------------------------
 | Manager Routes
