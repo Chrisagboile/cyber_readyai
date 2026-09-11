@@ -9,7 +9,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Role;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
-
+use App\Models\LearningPlan;
 
 // use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
@@ -64,5 +64,9 @@ class User extends Authenticatable
     public function department(): BelongsTo
     {
         return $this->belongsTo(Department::class);
+    }
+    public function learningPlans()
+    {
+        return $this->hasMany(LearningPlan::class);
     }
 }

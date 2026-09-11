@@ -4,9 +4,11 @@ namespace App\Services;
 
 use App\Models\AiAssessmentInsight;
 use App\Models\AssessmentAttempt;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use OpenAI\Laravel\Facades\OpenAI;
 use RuntimeException;
+use App\Models\LearningPlan;
 
 class AiAssessmentInsightService
 {
@@ -348,4 +350,122 @@ PROMPT;
             . "that need improvement, and provide practical "
             . "learning recommendations.";
     }
+
+    public function createLearningPlans(AssessmentAttempt $attempt): int
+    {
+        $attempt->loadMissing('aiInsight');
+
+        $insight = $attempt->aiInsight;
+
+        if (! $insight) {
+            return 0;
+        }
+
+        $existingCount = LearningPlan::where(
+            'assessment_attempt_id',
+            $attempt->id
+        )->count();
+
+        if ($existingCount > 0) {
+            return 0;
+        }
+
+        $priorityAreas = is_array($insight->priority_areas)
+            ? $insight->priority_areas
+            : [];
+
+        $recommendations = is_array($insight->recommendations)
+            ? $insight->recommendations
+            : [];
+
+        $plans = [];
+
+        foreach ($priorityAreas as $index => $area) {
+
+            if (! is_array($area)) {
+                continue;
+            }
+
+            $category = trim((string) ($area['category'] ?? ''));
+
+            if ($category === '') {
+                continue;
+            }
+
+            $reason = trim((string) ($area['reason'] ?? ''));
+
+        $recommendation = $recommendations[$index] ?? null;
+
+        if (is_array($recommendation)) {
+
+            $title = trim(
+                (string) ($recommendation['title'] ?? '')
+            );
+
+            $description = trim(
+                (string) ($recommendation['reason'] ?? '')
+            );
+
+            $recommendationPriority = strtolower(
+                (string) ($recommendation['priority'] ?? '')
+            );
+
+        } else {
+
+            $title = '';
+            $description = '';
+            $recommendationPriority = '';
+
+        }
+
+        if ($title === '') {
+            $title = 'Improve ' . $category;
+        }
+
+        if ($description === '') {
+            $description = $reason;
+        }
+
+        $priority = strtolower(
+            (string) ($area['priority'] ?? '')
+        );
+
+        if (! in_array($priority, ['low', 'medium', 'high'], true)) {
+            $priority = $recommendationPriority;
+        }
+
+        if (! in_array($priority, ['low', 'medium', 'high'], true)) {
+            $priority = 'medium';
+        }
+
+            if (! in_array($priority, ['low', 'medium', 'high'], true)) {
+                $priority = 'medium';
+            }
+
+            $plans[] = [
+                'user_id' => $attempt->user_id,
+                'assessment_attempt_id' => $attempt->id,
+                'title' => $title,
+                'description' => $description,
+                'priority' => $priority,
+                'status' => 'not_started',
+                'progress_percentage' => 0,
+                'due_date' => now()->addDays(
+                    $priority === 'high' ? 30 : 45
+                )->toDateString(),
+                'completed_at' => null,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ];
+        }
+
+        if (empty($plans)) {
+            return 0;
+        }
+
+        LearningPlan::insert($plans);
+
+        return count($plans);
+    }
+
 }

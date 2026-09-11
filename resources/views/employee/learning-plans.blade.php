@@ -1,3 +1,4 @@
+```blade
 @extends('layouts.app')
 
 @section('title', 'Learning Plans')
@@ -8,7 +9,7 @@
     <div>
         <h1 class="dashboard-title">Learning Plans</h1>
         <p class="dashboard-description">
-            Your personalised cybersecurity learning recommendations based on your assessment results.
+            Your personalised cybersecurity learning plans based on your assessment results.
         </p>
     </div>
 
@@ -17,173 +18,217 @@
     </div>
 </div>
 
-@if($insights->isEmpty())
+@if(session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+
+{{-- Learning Plan Statistics --}}
+<div class="stats-grid">
+
+    <div class="stat-card">
+        <div class="stat-label">Total Plans</div>
+        <div class="stat-value">{{ $totalPlans }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Not Started</div>
+        <div class="stat-value">{{ $notStartedPlans }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">In Progress</div>
+        <div class="stat-value">{{ $inProgressPlans }}</div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-label">Completed</div>
+        <div class="stat-value">{{ $completedPlans }}</div>
+    </div>
+
+</div>
+
+<div class="section-heading" style="margin-top: 32px;">
+    <div>
+        <h2>Your Learning Plans</h2>
+        <p>
+            Work through these personalised recommendations to improve your cybersecurity readiness.
+        </p>
+    </div>
+</div>
+
+@if($learningPlans->isEmpty())
 
     <div class="overview-card">
-        <div class="section-heading">
-            <div>
-                <h2>Your Learning Plan</h2>
-                <p>Complete an assessment to receive personalised learning recommendations.</p>
-            </div>
-        </div>
 
         <div class="empty-state">
-            <h3>No learning recommendations yet</h3>
+
+            <h3>No learning plans yet</h3>
 
             <p>
-                Once you complete an assessment, CyberReadyAI will analyse your results
-                and create personalised recommendations for you.
+                Complete a cybersecurity assessment to receive personalised learning plans
+                based on your results.
             </p>
 
             <a href="{{ route('assessment.index') }}" class="btn btn-primary">
                 View My Assessments
             </a>
+
         </div>
+
     </div>
 
 @else
 
-    @foreach($insights as $insight)
+    <div class="action-grid">
 
-        @php
-            $attempt = $insight->assessmentAttempt;
-            $assessment = $attempt?->assessment;
-        @endphp
+        @foreach($learningPlans as $plan)
 
-        <div class="overview-card" style="margin-bottom: 24px;">
+            <div class="overview-card">
 
-            <div class="section-heading">
-                <div>
-                    <h2>{{ $assessment?->name ?? 'Cybersecurity Assessment' }}</h2>
+                {{-- Plan Header --}}
+                <div class="section-heading">
 
-                    <p>
-                        Assessment completed
-                        {{ $attempt?->completed_at?->format('F j, Y') ?? 'recently' }}
-                    </p>
+                    <div>
+                        <h2>{{ $plan->title }}</h2>
+
+                        @if($plan->assessmentAttempt?->assessment)
+                            <p>
+                                From:
+                                {{ $plan->assessmentAttempt->assessment->name }}
+                            </p>
+                        @endif
+                    </div>
+
+                    <span class="status-badge">
+                        {{ ucfirst($plan->priority) }} Priority
+                    </span>
+
                 </div>
 
-                @if($attempt)
-                    <span class="status-badge">
-                        {{ number_format($attempt->score_percentage, 0) }}%
-                        · {{ $attempt->risk_level }} Risk
-                    </span>
+                {{-- Description --}}
+                @if($plan->description)
+
+                    <div style="margin-bottom: 20px;">
+                        <p>{{ $plan->description }}</p>
+                    </div>
+
                 @endif
+
+                {{-- Progress --}}
+                <div style="margin-bottom: 20px;">
+
+                    <div style="
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        margin-bottom: 8px;
+                    ">
+                        <strong>Progress</strong>
+
+                        <span>
+                            {{ $plan->progress_percentage }}%
+                        </span>
+                    </div>
+
+                    <div class="dashboard-progress">
+                        <div
+                            style="width: {{ $plan->progress_percentage }}%;"
+                        ></div>
+                    </div>
+
+                </div>
+
+                {{-- Status and Due Date --}}
+                <div style="
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    gap: 20px;
+                    margin-bottom: 20px;
+                ">
+
+                    <div>
+
+                        <strong>Status:</strong>
+
+                        {{ ucwords(str_replace('_', ' ', $plan->status)) }}
+
+                        @if($plan->due_date)
+                            <div style="margin-top: 5px; opacity: .7;">
+                                Due {{ $plan->due_date->format('F j, Y') }}
+                            </div>
+                        @endif
+
+                    </div>
+
+                    @if($plan->status === 'not_started')
+
+                        <form
+                            method="POST"
+                            action="{{ route('employee.learning-plans.status', $plan) }}"
+                        >
+                            @csrf
+                            @method('PATCH')
+
+                            <input
+                                type="hidden"
+                                name="status"
+                                value="in_progress"
+                            >
+
+                            <button type="submit" class="btn btn-primary">
+                                Start Plan
+                            </button>
+                        </form>
+
+                    @elseif($plan->status === 'in_progress')
+
+                        <form
+                            method="POST"
+                            action="{{ route('employee.learning-plans.status', $plan) }}"
+                        >
+                            @csrf
+                            @method('PATCH')
+
+                            <input
+                                type="hidden"
+                                name="status"
+                                value="completed"
+                            >
+
+                            <button type="submit" class="btn btn-primary">
+                                Mark Complete
+                            </button>
+                        </form>
+
+                    @else
+
+                        <span class="status-badge">
+                            Completed
+                        </span>
+
+                    @endif
+
+                </div>
+
             </div>
 
-            @if($insight->summary)
-                <div style="margin-bottom: 24px;">
-                    <h3>AI Assessment Summary</h3>
+        @endforeach
 
-                    <p>
-                        {{ $insight->summary }}
-                    </p>
-                </div>
-            @endif
+    </div>
 
-            @if(!empty($insight->priority_areas))
-                <div style="margin-bottom: 24px;">
-                    <h3>Priority Learning Areas</h3>
+    {{-- Pagination --}}
+    @if($learningPlans->hasPages())
 
-                    <div class="action-grid">
-
-                        @foreach($insight->priority_areas as $area)
-
-                            <div class="action-card">
-                                <div class="action-card-icon">🎯</div>
-
-                                <div>
-                                    @if(is_array($area))
-                                        <h3>{{ $area['title'] ?? $area['area'] ?? 'Learning Area' }}</h3>
-
-                                        @if(!empty($area['description']))
-                                            <p>{{ $area['description'] }}</p>
-                                        @endif
-                                    @else
-                                        <h3>{{ $area }}</h3>
-                                    @endif
-                                </div>
-                            </div>
-
-                        @endforeach
-
-                    </div>
-                </div>
-            @endif
-
-            @if(!empty($insight->recommendations))
-                <div style="margin-bottom: 24px;">
-                    <h3>Recommended Learning Activities</h3>
-
-                    <div class="action-grid">
-
-                        @foreach($insight->recommendations as $recommendation)
-
-                            <div class="action-card">
-                                <div class="action-card-icon">📚</div>
-
-                                <div>
-                                    @if(is_array($recommendation))
-                                        <h3>
-                                            {{ $recommendation['title']
-                                                ?? $recommendation['topic']
-                                                ?? 'Recommended Learning' }}
-                                        </h3>
-
-                                        @if(!empty($recommendation['description']))
-                                            <p>{{ $recommendation['description'] }}</p>
-                                        @elseif(!empty($recommendation['reason']))
-                                            <p>{{ $recommendation['reason'] }}</p>
-                                        @endif
-                                    @else
-                                        <h3>{{ $recommendation }}</h3>
-                                    @endif
-                                </div>
-                            </div>
-
-                        @endforeach
-
-                    </div>
-                </div>
-            @endif
-
-            @if(!empty($insight->strengths))
-                <div>
-                    <h3>Your Strengths</h3>
-
-                    <div class="action-grid">
-
-                        @foreach($insight->strengths as $strength)
-
-                            <div class="action-card">
-                                <div class="action-card-icon">✓</div>
-
-                                <div>
-                                    @if(is_array($strength))
-                                        <h3>
-                                            {{ $strength['title']
-                                                ?? $strength['area']
-                                                ?? 'Strength' }}
-                                        </h3>
-
-                                        @if(!empty($strength['description']))
-                                            <p>{{ $strength['description'] }}</p>
-                                        @endif
-                                    @else
-                                        <h3>{{ $strength }}</h3>
-                                    @endif
-                                </div>
-                            </div>
-
-                        @endforeach
-
-                    </div>
-                </div>
-            @endif
-
+        <div style="margin-top: 24px;">
+            {{ $learningPlans->links() }}
         </div>
 
-    @endforeach
+    @endif
 
 @endif
 
 @endsection
+```

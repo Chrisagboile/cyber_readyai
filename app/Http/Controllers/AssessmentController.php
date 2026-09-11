@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
+use App\Models\LearningPlan;
 use App\Models\Assessment;
 use App\Models\AssessmentAnswer;
 use App\Models\AssessmentAttempt;
@@ -570,8 +570,44 @@ class AssessmentController extends Controller
             )
         );
     }*/
+// begin
 
-    public function result(
+public function result(
+    Request $request,
+    AssessmentAttempt $attempt,
+    AiAssessmentInsightService $aiService
+) {
+    $this->authoriseAttempt($request, $attempt);
+
+    $attempt->load([
+        'assessment',
+        'answers.question.category',
+        'answers.option',
+        'aiInsight',
+    ]);
+
+    $insight = null;
+
+    if (in_array($attempt->status, ['completed', 'expired'], true)) {
+        $insight = $attempt->aiInsight;
+
+        if (! $insight) {
+            $insight = $aiService->generate($attempt);
+
+            $attempt->load('aiInsight');
+            $insight = $attempt->aiInsight;
+        }
+
+        if ($insight) {
+            $aiService->createLearningPlans($attempt);
+        }
+    }
+
+    return view('assessment.result', compact('attempt', 'insight'));
+}
+
+  // here
+ /*   public function result(
         Request $request,
         AssessmentAttempt $attempt,
         AiAssessmentInsightService $aiService
@@ -582,7 +618,7 @@ class AssessmentController extends Controller
     'attempt_id' => $attempt->id,
     'attempt_user_id' => $attempt->user_id,
 ]);*/
-        $this->authoriseAttempt(
+        /*$this->authoriseAttempt(
             $request,
             $attempt
         );
@@ -602,11 +638,15 @@ class AssessmentController extends Controller
         ) {
             $insight = $attempt->aiInsight;
 
-            if (! $insight) {
-                $insight = $aiService->generate(
-                    $attempt
-                );
+        if (!$insight) {
+            $insight = $aiService->generate($attempt);
+
+            if ($insight) {
+                $attempt->load('aiInsight');
+
+                $aiService->createLearningPlans($attempt);
             }
+        }
         }
 
         return view(
@@ -616,7 +656,7 @@ class AssessmentController extends Controller
                 'insight'
             )
         );
-    }
+    } */
     private function completeAttempt(
         AssessmentAttempt $attempt
     ): void {

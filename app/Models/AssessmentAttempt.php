@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
+use App\Models\LearningPlan;
 
 class AssessmentAttempt extends Model
 {
@@ -65,4 +66,10 @@ class AssessmentAttempt extends Model
             AiAssessmentInsight::class
         );
     }
+
+    public function learningPlans()
+    {
+        return $this->hasMany(LearningPlan::class);
+    }
+
 }

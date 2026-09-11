@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DepartmentController;
 use App\Http\Controllers\ManagerTeamReadinessController;
 use App\Http\Controllers\ManagerDepartmentReportsController;
+use App\Http\Controllers\ManagerRiskDashboardController;
 // use  Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
@@ -171,17 +172,22 @@ Route::middleware(['auth', 'verified', 'role:manager'])
             [ManagerDepartmentReportsController::class, 'index']
         )->name('manager.department-reports');
 
-
-
+/*
         Route::get('/risk-dashboard', function () {
             return view('manager.risk-dashboard');
-        })->name('manager.risk-dashboard');
+        })->name('manager.risk-dashboard');*/
+
+        Route::get(
+            '/risk-dashboard',
+            [ManagerRiskDashboardController::class, 'index']
+        )->name('manager.risk-dashboard');
 
         Route::get('/team-readiness', [ManagerTeamReadinessController::class, 'index'])
             ->name('manager.team-readiness');
 
-
-    });
+        Route::get('/learning-plans/{employee}', [LearningPlanController::class, 'managerIndex'])
+            ->name('manager.learning-plans');
+            });
 
 
 /*
@@ -224,6 +230,8 @@ Route::middleware(['auth', 'verified', 'role:employee'])
 	    ->name('employee.learning-plans');
     });
 
+    Route::patch('/employee/learning-plans/{learningPlan}/status', [LearningPlanController::class, 'updateStatus'])
+        ->name('employee.learning-plans.status');
 //Route::middleware(['auth', 'verified'])->group(function () {
 
     /*
