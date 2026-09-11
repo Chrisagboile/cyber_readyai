@@ -576,6 +576,12 @@ class AssessmentController extends Controller
         AssessmentAttempt $attempt,
         AiAssessmentInsightService $aiService
     ) {
+    /*    dd([
+    'user_id' => $request->user()->id,
+    'role' => $request->user()->role?->slug,
+    'attempt_id' => $attempt->id,
+    'attempt_user_id' => $attempt->user_id,
+]);*/
         $this->authoriseAttempt(
             $request,
             $attempt
@@ -771,7 +777,7 @@ class AssessmentController extends Controller
         );
     }
 */
-    private function authoriseAttempt(
+  /*  private function authoriseAttempt(
         Request $request,
         AssessmentAttempt $attempt
     ): void {
@@ -781,6 +787,63 @@ class AssessmentController extends Controller
         ) {
             abort(403);
         }
+    }*/
+    private function authoriseAttempt(
+        Request $request,
+        AssessmentAttempt $attempt
+    ): void {
+        $user = $request->user();
+
+        // Super Admin can view every assessment attempt.
+        if ($user->hasRole('super-admin')) {
+            return;
+        }
+
+        // Employee can only view their own attempt.
+        if ($user->hasRole('employee')) {
+            if ((int) $attempt->user_id === (int) $user->id) {
+                return;
+            }
+
+            abort(403);
+        }
+
+        // Organisation Admin can view attempts belonging
+        // to employees in their organisation.
+        if ($user->hasRole('organisation-admin')) {
+            $attemptUser = $attempt->user;
+
+            if (
+                $attemptUser
+                && $user->organisation_id
+                && (int) $attemptUser->organisation_id === (int) $user->organisation_id
+            ) {
+                return;
+            }
+
+            abort(403);
+        }
+
+        // Manager can view attempts belonging only to
+        // employees in their own department.
+        if ($user->hasRole('manager')) {
+            $attemptUser = $attempt->user;
+
+            if (
+                $attemptUser
+                && $user->organisation_id
+                && $user->department_id
+                && (int) $attemptUser->organisation_id === (int) $user->organisation_id
+                && (int) $attemptUser->department_id === (int) $user->department_id
+                && $attemptUser->hasRole('employee')
+            ) {
+                return;
+            }
+
+            abort(403);
+        }
+
+        abort(403);
     }
 
 }

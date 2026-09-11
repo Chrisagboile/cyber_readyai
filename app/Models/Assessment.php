@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
+
 class Assessment extends Model
 {
     use HasFactory;
@@ -15,6 +16,8 @@ class Assessment extends Model
     protected $fillable = [
         'name',
         'created_by',
+        'organisation_id',
+        'department_id',
         'employee_id',
         'status',
         'total_questions',
@@ -39,21 +42,21 @@ class Assessment extends Model
             EmployeeQuestion::class
         )->orderBy('question_order');
     }*/
-public function employee(): BelongsTo
-{
-    return $this->belongsTo(
-        User::class,
-        'employee_id'
-    );
-}
+    public function employee(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'employee_id'
+        );
+    }
 
-public function creator(): BelongsTo
-{
-    return $this->belongsTo(
-        User::class,
-        'created_by'
-    );
-}
+    public function creator(): BelongsTo
+    {
+        return $this->belongsTo(
+            User::class,
+            'created_by'
+        );
+    }
 
     public function attempts(): HasMany
     {
@@ -67,6 +70,25 @@ public function creator(): BelongsTo
         return $this->hasMany(
             EmployeeQuestion::class
         )->orderBy('question_order');
+    }
+ /*   public function organisation()
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function department()
+    {
+        return $this->belongsTo(Department::class);
+    }
+*/
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
+
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
     }
 /*
     public function attemptFor(User $user)

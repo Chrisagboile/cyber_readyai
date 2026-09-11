@@ -1,11 +1,16 @@
 <?php
-use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AssessmentController;
-use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\ManagerAssessmentController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\EmployeeController;
+use App\Http\Controllers\LearningPlanController;
+use App\Http\Controllers\ManagerAssessmentController;
 use App\Http\Controllers\ProfileController;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\DepartmentController;
+use App\Http\Controllers\ManagerTeamReadinessController;
+use App\Http\Controllers\ManagerDepartmentReportsController;
 // use  Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
@@ -152,7 +157,7 @@ Route::middleware(['auth', 'verified', 'role:manager'])
         Route::get('/dashboard', function () {
             return view('dashboard.manager');
         })->name('manager.dashboard');
-
+/*
         Route::get('/team-readiness', function () {
             return view('manager.team-readiness');
         })->name('manager.team-readiness');
@@ -160,10 +165,21 @@ Route::middleware(['auth', 'verified', 'role:manager'])
         Route::get('/department-reports', function () {
             return view('manager.department-reports');
         })->name('manager.department-reports');
+*/
+        Route::get(
+            '/department-reports',
+            [ManagerDepartmentReportsController::class, 'index']
+        )->name('manager.department-reports');
+
+
 
         Route::get('/risk-dashboard', function () {
             return view('manager.risk-dashboard');
         })->name('manager.risk-dashboard');
+
+        Route::get('/team-readiness', [ManagerTeamReadinessController::class, 'index'])
+            ->name('manager.team-readiness');
+
 
     });
 
@@ -183,18 +199,31 @@ Route::middleware(['auth', 'verified', 'role:employee'])
         })->name('employee.dashboard');
 
         Route::get('/assessments', function () {
+            return redirect()->route('assessment.index');
+        })->name('employee.assessments');
+
+        /*
+        Route::get('/assessments', function () {
             return view('employee.assessments');
         })->name('employee.assessments');
 
-        Route::get('/score', function () {
+       Route::get('/score', function () {
             return view('employee.score');
         })->name('employee.score');
-
-        Route::get('/learning-plans', function () {
+*/
+        Route::get('/score', [EmployeeController::class, 'score'])
+         ->name('employee.score');
+/*
+         Route::get('/learning-plans', function () {
             return view('employee.learning-plans');
         })->name('employee.learning-plans');
+*/
 
+
+	Route::get('/learning-plans', [LearningPlanController::class, 'index'])
+	    ->name('employee.learning-plans');
     });
+
 //Route::middleware(['auth', 'verified'])->group(function () {
 
     /*
@@ -202,6 +231,7 @@ Route::middleware(['auth', 'verified', 'role:employee'])
     | Assessment
     |--------------------------------------------------------------------------
     */
+    /*
     Route::middleware([
         'auth',
         'verified',
@@ -248,7 +278,63 @@ Route::middleware(['auth', 'verified', 'role:employee'])
     )->name('assessment.result');
 
   //  });
- });
+ });*/
+
+ // Employee assessment routes
+    Route::middleware([
+        'auth',
+        'verified',
+        'role:employee',
+    ])->group(function () {
+
+        Route::get(
+            '/assessments',
+            [AssessmentController::class, 'index']
+        )->name('assessment.index');
+
+        Route::get(
+            '/assessment/{assessment}/start',
+            [AssessmentController::class, 'start']
+        )->name('assessment.start');
+
+        Route::get(
+            '/assessment/{attempt}/question/{question}/previous',
+            [AssessmentController::class, 'previous']
+        )->name('assessment.previous');
+
+        Route::get(
+            '/assessment/{attempt}/question/{question}',
+            [AssessmentController::class, 'question']
+        )->name('assessment.question');
+
+        Route::post(
+            '/assessment/{attempt}/question/{question}',
+            [AssessmentController::class, 'answer']
+        )->name('assessment.answer');
+
+        Route::get(
+            '/assessment/{attempt}/review',
+            [AssessmentController::class, 'review']
+        )->name('assessment.review');
+
+        Route::post(
+            '/assessment/{attempt}/submit',
+            [AssessmentController::class, 'submit']
+        )->name('assessment.submit');
+    });
+
+
+    // Assessment result routes
+    Route::middleware([
+        'auth',
+        'verified',
+    ])->group(function () {
+
+        Route::get(
+            '/assessment/{attempt}/result',
+            [AssessmentController::class, 'result']
+        )->name('assessment.result');
+    });
  /*
  /==================================================
  /  Password: reset and management
@@ -320,7 +406,9 @@ Route::middleware('guest')->group(function () {
             '/assessments',
             [ManagerAssessmentController::class, 'generate']
         )->name('assessments.generate');
+
     });
+
 /*
 /=============================================================
 /
@@ -347,5 +435,7 @@ Route::middleware([
         '/profile/password',
         [ProfileController::class, 'updatePassword']
     )->name('profile.password.update');
+
+    Route::resource('departments', DepartmentController::class);
 
 });

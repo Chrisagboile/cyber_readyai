@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Role;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 
 // use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -18,6 +19,8 @@ use App\Models\Role;
     'email',
     'password',
     'role_id',
+    'organisation_id',
+    'department_id',
 ])]
 #[Hidden(['password', 'remember_token'])]
 class User extends Authenticatable
@@ -53,5 +56,13 @@ class User extends Authenticatable
             in_array($this->role->slug, $roles, true);
     }
 
+    public function organisation(): BelongsTo
+    {
+        return $this->belongsTo(Organisation::class);
+    }
 
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
 }

@@ -15,7 +15,7 @@
                 <div class="card-body">
                     <h5>Assessments</h5>
                     <p>Complete your cybersecurity assessments.</p>
-                    <a href="#"
+                    <a href="href="{{ route('assessment.index') }}"
                        class="btn btn-primary">
                         Start Assessment
                     </a>
@@ -28,7 +28,7 @@
                 <div class="card-body">
                     <h5>My Score</h5>
                     <p>View your cybersecurity readiness score.</p>
-                    <a href="#" class="btn btn-primary">
+                    <a href="{{ route('employee.score') }}" class="btn btn-primary">
                         View Score
                     </a>
                 </div>
