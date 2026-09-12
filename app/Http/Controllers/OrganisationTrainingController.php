@@ -23,15 +23,15 @@ class OrganisationTrainingController extends Controller
         return (int) $user->organisation_id;
     }
 
+    /*
+    |--------------------------------------------------------------------------
+    | Training Overview
+    |--------------------------------------------------------------------------
+    */
+
     public function index(Request $request)
     {
         $organisationId = $this->organisationId($request);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Organisation employees
-        |--------------------------------------------------------------------------
-        */
 
         $employees = User::query()
             ->where('organisation_id', $organisationId)
@@ -42,22 +42,10 @@ class OrganisationTrainingController extends Controller
             ->orderBy('name')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Departments
-        |--------------------------------------------------------------------------
-        */
-
         $departments = Department::query()
             ->where('organisation_id', $organisationId)
             ->orderBy('name')
             ->get();
-
-        /*
-        |--------------------------------------------------------------------------
-        | Learning plans
-        |--------------------------------------------------------------------------
-        */
 
         $plans = LearningPlan::query()
             ->whereHas('user', function ($query) use ($organisationId) {
@@ -82,17 +70,20 @@ class OrganisationTrainingController extends Controller
             ->orderByDesc('created_at')
             ->get();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Filters
-        |--------------------------------------------------------------------------
-        */
-
         $departmentId = $request->integer('department_id');
         $employeeId = $request->integer('employee_id');
-        $status = strtolower(trim((string) $request->input('status', '')));
-        $priority = strtolower(trim((string) $request->input('priority', '')));
-        $progress = strtolower(trim((string) $request->input('progress', '')));
+
+        $status = strtolower(
+            trim((string) $request->input('status', ''))
+        );
+
+        $priority = strtolower(
+            trim((string) $request->input('priority', ''))
+        );
+
+        $progress = strtolower(
+            trim((string) $request->input('progress', ''))
+        );
 
         if ($departmentId) {
             $plans = $plans->filter(function ($plan) use ($departmentId) {
@@ -136,10 +127,10 @@ class OrganisationTrainingController extends Controller
                 $value = (int) $plan->progress_percentage;
 
                 return match ($progress) {
-                    '0'     => $value === 0,
-                    '1_49'  => $value >= 1 && $value <= 49,
+                    '0' => $value === 0,
+                    '1_49' => $value >= 1 && $value <= 49,
                     '50_99' => $value >= 50 && $value <= 99,
-                    '100'   => $value >= 100,
+                    '100' => $value >= 100,
                     default => true,
                 };
             });
@@ -147,7 +138,7 @@ class OrganisationTrainingController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Base organisation-wide statistics
+        | Organisation-wide statistics
         |--------------------------------------------------------------------------
         */
 
@@ -203,12 +194,6 @@ class OrganisationTrainingController extends Controller
             })
             ->count();
 
-        /*
-        |--------------------------------------------------------------------------
-        | Employees with plans
-        |--------------------------------------------------------------------------
-        */
-
         $employeesWithPlans = $allPlans
             ->pluck('user_id')
             ->unique()
@@ -221,13 +206,14 @@ class OrganisationTrainingController extends Controller
 
         /*
         |--------------------------------------------------------------------------
-        | Department summary
+        | Department training summary
         |--------------------------------------------------------------------------
         */
 
         $departmentTraining = $departments->map(function ($department) use ($allPlans) {
             $departmentPlans = $allPlans->filter(function ($plan) use ($department) {
-                return (int) optional($plan->user)->department_id === (int) $department->id;
+                return (int) optional($plan->user)->department_id
+                    === (int) $department->id;
             });
 
             $planCount = $departmentPlans->count();
@@ -327,12 +313,6 @@ class OrganisationTrainingController extends Controller
             ];
         });
 
-        /*
-        |--------------------------------------------------------------------------
-        | Current attention list
-        |--------------------------------------------------------------------------
-        */
-
         $attentionEmployees = $employeeTraining
             ->filter(function ($row) {
                 return $row->overdue > 0
@@ -350,12 +330,6 @@ class OrganisationTrainingController extends Controller
             })
             ->values()
             ->take(10);
-
-        /*
-        |--------------------------------------------------------------------------
-        | Selected filter labels
-        |--------------------------------------------------------------------------
-        */
 
         $selectedDepartment = $departmentId
             ? $departments->firstWhere('id', $departmentId)
@@ -388,6 +362,175 @@ class OrganisationTrainingController extends Controller
             'progress' => $progress,
             'selectedDepartment' => $selectedDepartment,
             'selectedEmployee' => $selectedEmployee,
+        ]);
+    }
+
+    /*
+    |--------------------------------------------------------------------------
+    | Individual Employee Training
+    |--------------------------------------------------------------------------
+    */
+
+    public function employee(Request $request, User $employee)
+    {
+        $organisationId = $this->organisationId($request);
+
+        /*
+        |--------------------------------------------------------------------------
+        | Security / organisation scoping
+        |--------------------------------------------------------------------------
+        */
+
+        abort_unless(
+            (int) $employee->organisation_id === $organisationId,
+            404
+        );
+
+        abort_unless(
+            $employee->hasRole('employee'),
+            404
+        );
+
+        $employee->load('department');
+
+        /*
+        |--------------------------------------------------------------------------
+        | Employee learning plans
+        |--------------------------------------------------------------------------
+        */
+
+        $plans = LearningPlan::query()
+            ->where('user_id', $employee->id)
+            ->with([
+                'assessmentAttempt.assessment',
+                'assessmentAttempt',
+            ])
+            ->orderByRaw("
+                CASE
+                    WHEN status = 'in_progress' THEN 1
+                    WHEN status = 'not_started' THEN 2
+                    WHEN status = 'completed' THEN 3
+                    ELSE 4
+                END
+            ")
+            ->orderByRaw("
+                CASE
+                    WHEN priority = 'high' THEN 1
+                    WHEN priority = 'medium' THEN 2
+                    WHEN priority = 'low' THEN 3
+                    ELSE 4
+                END
+            ")
+            ->orderByDesc('created_at')
+            ->get();
+
+        /*
+        |--------------------------------------------------------------------------
+        | Plan statistics
+        |--------------------------------------------------------------------------
+        */
+
+        $totalPlans = $plans->count();
+
+        $completedPlans = $plans
+            ->where('status', 'completed')
+            ->count();
+
+        $inProgressPlans = $plans
+            ->where('status', 'in_progress')
+            ->count();
+
+        $notStartedPlans = $plans
+            ->where('status', 'not_started')
+            ->count();
+
+        $overduePlans = $plans
+            ->filter(function ($plan) {
+                return $plan->due_date
+                    && $plan->status !== 'completed'
+                    && $plan->due_date->isPast();
+            })
+            ->count();
+
+        $highPriorityPlans = $plans
+            ->filter(function ($plan) {
+                return strtolower((string) $plan->priority) === 'high'
+                    && $plan->status !== 'completed';
+            })
+            ->count();
+
+        $averageProgress = $totalPlans > 0
+            ? round(
+                $plans->avg(function ($plan) {
+                    return (float) $plan->progress_percentage;
+                }),
+                1
+            )
+            : 0;
+
+        $completionRate = $totalPlans > 0
+            ? round(
+                ($completedPlans / $totalPlans) * 100,
+                1
+            )
+            : 0;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Most recent source assessment
+        |--------------------------------------------------------------------------
+        */
+
+        $latestAssessment = $plans
+            ->filter(function ($plan) {
+                return $plan->assessmentAttempt
+                    && $plan->assessmentAttempt->assessment;
+            })
+            ->sortByDesc(function ($plan) {
+                return optional(
+                    $plan->assessmentAttempt
+                )->completed_at;
+            })
+            ->first();
+
+        $latestAttempt = $latestAssessment
+            ? $latestAssessment->assessmentAttempt
+            : null;
+
+        $latestAssessmentModel = $latestAttempt
+            ? $latestAttempt->assessment
+            : null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Risk level from latest assessment
+        |--------------------------------------------------------------------------
+        */
+
+        $riskLevel = $latestAttempt
+            ? strtolower((string) $latestAttempt->risk_level)
+            : null;
+
+        /*
+        |--------------------------------------------------------------------------
+        | Return page
+        |--------------------------------------------------------------------------
+        */
+
+        return view('training.employee', [
+            'employee' => $employee,
+            'plans' => $plans,
+            'totalPlans' => $totalPlans,
+            'completedPlans' => $completedPlans,
+            'inProgressPlans' => $inProgressPlans,
+            'notStartedPlans' => $notStartedPlans,
+            'overduePlans' => $overduePlans,
+            'highPriorityPlans' => $highPriorityPlans,
+            'averageProgress' => $averageProgress,
+            'completionRate' => $completionRate,
+            'latestAttempt' => $latestAttempt,
+            'latestAssessment' => $latestAssessmentModel,
+            'riskLevel' => $riskLevel,
         ]);
     }
 }

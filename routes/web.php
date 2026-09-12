@@ -1,5 +1,4 @@
 <?php
-use App\Http\Controllers\OrganisationTrainingController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -14,8 +13,14 @@ use App\Http\Controllers\ManagerTeamReadinessController;
 use App\Http\Controllers\OrganisationAdminDashboardController;
 use App\Http\Controllers\OrganisationAssessmentController;
 use App\Http\Controllers\OrganisationReportController;
+use App\Http\Controllers\OrganisationTrainingController;
 use App\Http\Controllers\OrganisationUserController;
 use App\Http\Controllers\ProfileController;
+use App\Http\Controllers\SuperAdminAnalyticsController;
+use App\Http\Controllers\SuperAdminBillingController;
+use App\Http\Controllers\SuperAdminDashboardController;
+use App\Http\Controllers\SuperAdminOrganisationController;
+use App\Http\Controllers\SuperAdminSubscriptionController;
 use Illuminate\Support\Facades\Route;
 // use  Illuminate\Support\Facades\Auth;
 /*
@@ -58,6 +63,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
+/*
     Route::get('/dashboard', function () {
         $role = auth()->user()->role?->slug;
 
@@ -80,6 +86,30 @@ Route::middleware(['auth', 'verified'])->group(function () {
         };
 
     })->name('dashboard');
+    */Route::get('/dashboard', function () {
+    $user = auth()->user();
+
+    return match ($user->role?->slug) {
+
+        'super-admin' =>
+            app(\App\Http\Controllers\SuperAdminDashboardController::class)
+                ->index(request()),
+
+        'organisation-admin' =>
+            app(\App\Http\Controllers\OrganisationAdminDashboardController::class)
+                ->index(request()),
+
+        'manager' =>
+            view('dashboard.manager'),
+
+        'employee' =>
+            view('dashboard.employee'),
+
+        default =>
+            abort(403, 'No valid role assigned to this account.'),
+    };
+
+})->name('dashboard');
 
 });
 
@@ -94,6 +124,11 @@ Route::middleware(['auth', 'verified', 'role:super-admin'])
     ->prefix('admin')
     ->group(function () {
 
+        Route::get(
+            '/dashboard',
+            [SuperAdminDashboardController::class, 'index']
+        )->name('admin.dashboard');
+/*
         Route::get('/dashboard', function () {
             return view('dashboard.super-admin');
         })->name('admin.dashboard');
@@ -101,18 +136,90 @@ Route::middleware(['auth', 'verified', 'role:super-admin'])
         Route::get('/tenants', function () {
             return view('tenants.index');
         })->name('tenants.index');
+*/
+        Route::get(
+            '/tenants',
+            [SuperAdminOrganisationController::class, 'index']
+        )->name('tenants.index');
 
+        Route::get(
+            '/tenants/create',
+            [SuperAdminOrganisationController::class, 'create']
+        )->name('tenants.create');
+
+        Route::post(
+            '/tenants',
+            [SuperAdminOrganisationController::class, 'store']
+        )->name('tenants.store');
+
+        Route::get(
+            '/tenants/{organisation}/edit',
+            [SuperAdminOrganisationController::class, 'edit']
+        )->name('tenants.edit');
+
+        Route::put(
+            '/tenants/{organisation}',
+            [SuperAdminOrganisationController::class, 'update']
+        )->name('tenants.update');
+
+        Route::patch(
+            '/tenants/{organisation}/toggle-status',
+            [SuperAdminOrganisationController::class, 'toggleStatus']
+        )->name('tenants.toggle-status');
+
+/*
         Route::get('/subscriptions', function () {
             return view('subscriptions.index');
         })->name('subscriptions.index');
+*/
+    Route::get(
+        '/subscriptions',
+        [SuperAdminSubscriptionController::class, 'index']
+    )->name('subscriptions.index');
 
+    Route::get(
+        '/subscriptions/create',
+        [SuperAdminSubscriptionController::class, 'create']
+    )->name('subscriptions.create');
+
+    Route::post(
+        '/subscriptions',
+        [SuperAdminSubscriptionController::class, 'store']
+    )->name('subscriptions.store');
+
+    Route::get(
+        '/subscriptions/{subscription}/edit',
+        [SuperAdminSubscriptionController::class, 'edit']
+    )->name('subscriptions.edit');
+
+    Route::put(
+        '/subscriptions/{subscription}',
+        [SuperAdminSubscriptionController::class, 'update']
+    )->name('subscriptions.update');
+
+    Route::patch(
+        '/subscriptions/{subscription}/cancel',
+        [SuperAdminSubscriptionController::class, 'cancel']
+    )->name('subscriptions.cancel');
+/*
         Route::get('/analytics', function () {
             return view('analytics.index');
         })->name('analytics.index');
+*/
+    Route::get(
+        '/analytics',
+        [SuperAdminAnalyticsController::class, 'index']
+    )->name('analytics.index');
 
-        Route::get('/billing', function () {
+ /*   Route::get('/billing', function () {
             return view('billing.index');
         })->name('billing.index');
+*/
+
+    Route::get(
+        '/billing',
+        [SuperAdminBillingController::class, 'index']
+    )->name('billing.index');
 
     });
 
@@ -195,6 +302,11 @@ Route::middleware(['auth', 'verified', 'role:organisation-admin'])
             '/reports',
             [OrganisationReportController::class, 'index']
         )->name('organisation.reports');
+
+        Route::get(
+            '/training/employee/{employee}',
+            [OrganisationTrainingController::class, 'employee']
+        )->name('organisation.training.employee');
 
         Route::get(
             '/training',

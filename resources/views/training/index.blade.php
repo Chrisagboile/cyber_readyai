@@ -357,8 +357,12 @@
                             </div>
 
                             <div>
-                                <strong>{{ $employee->name }}</strong>
-
+                                <a
+                                    href="{{ route('organisation.training.employee', $employee) }}"
+                                    class="org-training-person-link"
+                                >
+                                    <strong>{{ $employee->name }}</strong>
+                                </a>
                                 <span>
                                     {{ optional($employee->department)->name ?? 'No department' }}
                                 </span>
@@ -742,6 +746,15 @@
 
 
 <style>
+.org-training-person-link {
+    color: inherit;
+    text-decoration: none;
+}
+
+.org-training-person-link:hover {
+    text-decoration: underline;
+}
+
 .org-training-page {
     max-width: 1500px;
     margin: 0 auto;
@@ -1380,5 +1393,24 @@
     }
 }
 </style>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const employeeSelect = document.getElementById('employee_id');
 
+    if (!employeeSelect) {
+        return;
+    }
+
+    employeeSelect.addEventListener('dblclick', function () {
+        const employeeId = this.value;
+
+        if (!employeeId) {
+            return;
+        }
+
+        window.location.href =
+            "{{ url('/organisation/training/employee') }}/" + employeeId;
+    });
+});
+</script>
 @endsection
