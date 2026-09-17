@@ -8,60 +8,32 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::create('assessment_attempts', function (Blueprint $table) {
-
+        Schema::create('assessments', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('assessment_id')
-                ->nullable()
-                ->constrained('assessments')
-                ->cascadeOnDelete();
+            $table->string('name');
 
-            $table->foreignId('user_id')
+            $table->foreignId('created_by')
                 ->constrained('users')
                 ->cascadeOnDelete();
 
-            $table->unsignedInteger('current_position')
-                ->default(0);
+            $table->foreignId('employee_id')
+                ->nullable()
+                ->constrained('users')
+                ->nullOnDelete();
 
             $table->string('status', 30)
-                ->default('in_progress');
+                ->default('active');
 
             $table->unsignedInteger('total_questions')
                 ->default(0);
 
-            $table->unsignedInteger('answered_questions')
-                ->default(0);
-
-            $table->unsignedInteger('correct_answers')
-                ->default(0);
-
-            $table->decimal('score_percentage', 5, 2)
-                ->nullable();
-
-            $table->string('risk_level', 30)
-                ->nullable();
-
-            $table->timestamp('started_at')
-                ->nullable();
-
-            $table->timestamp('expires_at')
-                ->nullable();
-
-            $table->timestamp('completed_at')
-                ->nullable();
-
             $table->timestamps();
-
-            $table->unique([
-                'assessment_id',
-                'user_id',
-            ]);
         });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('assessment_attempts');
+        Schema::dropIfExists('assessments');
     }
 };
