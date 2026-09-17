@@ -8,46 +8,60 @@ return new class extends Migration
 {
     public function up(): void
     {
-        Schema::table('assessment_attempts', function (Blueprint $table) {
+        Schema::create('assessment_attempts', function (Blueprint $table) {
+
+            $table->id();
 
             $table->foreignId('assessment_id')
-                ->after('id')
+                ->nullable()
                 ->constrained('assessments')
                 ->cascadeOnDelete();
 
+            $table->foreignId('user_id')
+                ->constrained('users')
+                ->cascadeOnDelete();
+
             $table->unsignedInteger('current_position')
-                ->default(0)
-                ->after('assessment_id');
+                ->default(0);
+
+            $table->string('status', 30)
+                ->default('in_progress');
+
+            $table->unsignedInteger('total_questions')
+                ->default(0);
+
+            $table->unsignedInteger('answered_questions')
+                ->default(0);
+
+            $table->unsignedInteger('correct_answers')
+                ->default(0);
+
+            $table->decimal('score_percentage', 5, 2)
+                ->nullable();
+
+            $table->string('risk_level', 30)
+                ->nullable();
+
+            $table->timestamp('started_at')
+                ->nullable();
 
             $table->timestamp('expires_at')
-                ->nullable()
-                ->after('started_at');
+                ->nullable();
+
+            $table->timestamp('completed_at')
+                ->nullable();
+
+            $table->timestamps();
 
             $table->unique([
                 'assessment_id',
-                'user_id'
+                'user_id',
             ]);
         });
     }
 
     public function down(): void
     {
-        Schema::table('assessment_attempts', function (Blueprint $table) {
-
-            $table->dropUnique([
-                'assessment_id',
-                'user_id'
-            ]);
-
-            $table->dropForeign([
-                'assessment_id'
-            ]);
-
-            $table->dropColumn([
-                'assessment_id',
-                'current_position',
-                'expires_at',
-            ]);
-        });
+        Schema::dropIfExists('assessment_attempts');
     }
 };
