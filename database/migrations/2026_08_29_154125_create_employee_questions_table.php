@@ -28,11 +28,14 @@ return new class extends Migration
 
             $table->timestamps();
 
-            $table->unique([
-                'employee_id',
-                'question_id',
-                'assessment_attempt_id'
-            ]);
+            $table->unique(
+                [
+                    'employee_id',
+                    'question_id',
+                    'assessment_attempt_id',
+                ],
+                'employee_questions_emp_question_attempt_unique'
+            );
         });
     }
 
