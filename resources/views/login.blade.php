@@ -558,7 +558,7 @@
 
             {{-- Mobile brand --}}
 
-            <a href="{{ url('login') }}" class="mobile-brand">
+            <a href="{{ url('/') }}" class="mobile-brand">
 
                 <div class="brand-logo">
                     🛡️
@@ -751,7 +751,7 @@
 
             <div class="back-home">
 
-                <a href="{{ url('login') }}">
+                <a href="{{ url('/') }}">
                     ← Back to CyberReadyAI
                 </a>
 
