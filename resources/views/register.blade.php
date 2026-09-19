@@ -631,7 +631,7 @@
 
     <section class="brand-panel">
 
-        <a href="{{ url('/') }}" class="brand">
+        <a href="{{ url('login') }}" class="brand">
 
             <div class="brand-logo">
                 🛡️
@@ -740,7 +740,7 @@
 
             {{-- MOBILE BRAND --}}
 
-            <a href="{{ url('/') }}" class="mobile-brand">
+            <a href="{{ url('login') }}" class="mobile-brand">
 
                 <div class="brand-logo">
                     🛡️
@@ -1109,7 +1109,7 @@
 
             <div class="back-home">
 
-                <a href="{{ url('/') }}">
+                <a href="{{ url('login') }}">
                     ← Back to CyberReadyAI
                 </a>
 

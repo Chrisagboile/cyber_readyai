@@ -2,9 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>Login | CyberReadyAI</title>
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
+    <title>Forgot Password | CyberReadyAI</title>
 
     <style>
         * {
@@ -16,252 +20,499 @@
         :root {
             --primary: #5b2dcc;
             --primary-dark: #4520a5;
+            --primary-light: #efe9ff;
+
             --text: #17203b;
-            --muted: #68718b;
-            --border: #e2e4ec;
-            --background: #f7f6fc;
+            --muted: #727b91;
+
+            --border: #e2e5ee;
+            --background: #f7f7fb;
+            --white: #ffffff;
+
+            --danger-bg: #fff1f1;
+            --danger-border: #ffd2d2;
+            --danger-text: #b42318;
+
+            --success-bg: #edfff5;
+            --success-border: #c8f0d9;
+            --success-text: #087443;
+
+            --shadow: 0 24px 60px rgba(23, 32, 59, 0.10);
+        }
+
+        html,
+        body {
+            min-height: 100%;
         }
 
         body {
             min-height: 100vh;
-            font-family: Inter, -apple-system, BlinkMacSystemFont,
-                "Segoe UI", Roboto, Arial, sans-serif;
+
+            font-family:
+                Inter,
+                -apple-system,
+                BlinkMacSystemFont,
+                "Segoe UI",
+                Roboto,
+                Arial,
+                sans-serif;
+
+            color: var(--text);
+
             background:
                 radial-gradient(
-                    circle at 10% 20%,
-                    rgba(91, 45, 204, 0.12),
-                    transparent 30%
+                    circle at 8% 15%,
+                    rgba(91, 45, 204, 0.10),
+                    transparent 28%
                 ),
                 radial-gradient(
-                    circle at 90% 80%,
-                    rgba(91, 45, 204, 0.10),
+                    circle at 92% 85%,
+                    rgba(112, 70, 223, 0.08),
                     transparent 30%
                 ),
                 var(--background);
-            color: var(--text);
+
+            -webkit-font-smoothing: antialiased;
         }
 
-        /* =========================
+        a {
+            color: inherit;
+            text-decoration: none;
+        }
+
+        button,
+        input {
+            font: inherit;
+        }
+
+        /* =====================================================
            PAGE
-        ========================== */
+        ====================================================== */
 
-        .page {
+        .auth-page {
             min-height: 100vh;
+
             display: grid;
-            grid-template-columns: 1.05fr 0.95fr;
+            grid-template-columns:
+                minmax(0, 1.05fr)
+                minmax(420px, 0.95fr);
         }
 
-        /* =========================
-           LEFT PANEL
-        ========================== */
+        /* =====================================================
+           BRAND PANEL
+        ====================================================== */
 
         .brand-panel {
             position: relative;
             overflow: hidden;
+
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            padding: 55px 8%;
-            color: white;
+
+            padding:
+                52px
+                clamp(40px, 7vw, 96px);
+
+            color: var(--white);
+
             background:
                 linear-gradient(
                     145deg,
-                    #35158f 0%,
+                    #321487 0%,
                     #5b2dcc 48%,
-                    #7046df 100%
+                    #754de5 100%
                 );
         }
 
         .brand-panel::before {
             content: "";
+
             position: absolute;
-            width: 450px;
-            height: 450px;
+
+            width: 520px;
+            height: 520px;
+
+            top: -245px;
+            right: -210px;
+
             border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.12);
-            top: -180px;
-            right: -180px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.13);
         }
 
         .brand-panel::after {
             content: "";
+
             position: absolute;
-            width: 350px;
-            height: 350px;
+
+            width: 420px;
+            height: 420px;
+
+            bottom: -240px;
+            left: -190px;
+
             border-radius: 50%;
-            border: 1px solid rgba(255,255,255,0.10);
-            bottom: -160px;
-            left: -150px;
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.10);
         }
 
-        .brand {
+        .brand-panel-content {
             position: relative;
             z-index: 2;
-            display: flex;
+        }
+
+        /* =====================================================
+           BRAND
+        ====================================================== */
+
+        .brand-link {
+            display: inline-flex;
+
             align-items: center;
-            gap: 13px;
+
+            gap: 14px;
         }
 
         .brand-logo {
-            width: 48px;
-            height: 48px;
-            border-radius: 13px;
-            background: rgba(255,255,255,0.16);
-            border: 1px solid rgba(255,255,255,0.25);
+            width: 50px;
+            height: 50px;
+
             display: flex;
             align-items: center;
             justify-content: center;
+
+            border-radius: 14px;
+
+            background:
+                rgba(255, 255, 255, 0.14);
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.22);
+
             font-size: 25px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.12);
+
+            box-shadow:
+                0 12px 30px
+                rgba(0, 0, 0, 0.12);
+        }
+
+        .brand-text {
+            display: flex;
+
+            flex-direction: column;
+
+            gap: 4px;
         }
 
         .brand-name {
             font-size: 23px;
-            font-weight: 750;
+
             line-height: 1;
+
+            font-weight: 800;
+
+            letter-spacing: -0.5px;
         }
 
         .brand-subtitle {
-            margin-top: 5px;
             font-size: 12px;
-            color: rgba(255,255,255,0.75);
+
+            color:
+                rgba(255, 255, 255, 0.72);
         }
 
-        .panel-content {
-            position: relative;
-            z-index: 2;
-            max-width: 520px;
+        /* =====================================================
+           BRAND MESSAGE
+        ====================================================== */
+
+        .brand-message {
+            max-width: 560px;
+
+            margin-top: auto;
+            margin-bottom: auto;
+
+            padding: 80px 0;
         }
 
-        .panel-content h1 {
-            font-size: clamp(38px, 4vw, 58px);
-            line-height: 1.08;
-            letter-spacing: -1.5px;
-            margin-bottom: 22px;
-        }
+        .eyebrow {
+            display: inline-flex;
 
-        .panel-content h1 span {
-            color: #dcd0ff;
-        }
-
-        .panel-content p {
-            max-width: 470px;
-            color: rgba(255,255,255,0.78);
-            font-size: 17px;
-            line-height: 1.7;
-        }
-
-        .security-items {
-            display: flex;
-            flex-direction: column;
-            gap: 14px;
-            margin-top: 32px;
-        }
-
-        .security-item {
-            display: flex;
             align-items: center;
-            gap: 12px;
-            color: rgba(255,255,255,0.88);
+
+            gap: 8px;
+
+            margin-bottom: 20px;
+
+            padding:
+                8px
+                12px;
+
+            border-radius: 999px;
+
+            background:
+                rgba(255, 255, 255, 0.11);
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.16);
+
+            color:
+                rgba(255, 255, 255, 0.86);
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+            letter-spacing: 0.3px;
+        }
+
+        .brand-message h1 {
+            max-width: 600px;
+
+            margin-bottom: 22px;
+
+            font-size:
+                clamp(40px, 4.6vw, 62px);
+
+            line-height: 1.06;
+
+            letter-spacing: -2px;
+        }
+
+        .brand-message h1 span {
+            color: #ddd2ff;
+        }
+
+        .brand-message p {
+            max-width: 520px;
+
+            color:
+                rgba(255, 255, 255, 0.78);
+
+            font-size: 17px;
+
+            line-height: 1.75;
+        }
+
+        /* =====================================================
+           TRUST ITEMS
+        ====================================================== */
+
+        .trust-list {
+            display: grid;
+
+            gap: 14px;
+
+            margin-top: 34px;
+        }
+
+        .trust-item {
+            display: flex;
+
+            align-items: center;
+
+            gap: 13px;
+
+            color:
+                rgba(255, 255, 255, 0.90);
+
             font-size: 14px;
         }
 
-        .security-icon {
-            width: 34px;
-            height: 34px;
-            border-radius: 9px;
-            background: rgba(255,255,255,0.13);
+        .trust-icon {
+            width: 36px;
+            height: 36px;
+
+            flex: 0 0 36px;
+
             display: flex;
+
             align-items: center;
             justify-content: center;
+
+            border-radius: 10px;
+
+            background:
+                rgba(255, 255, 255, 0.12);
+
+            border:
+                1px solid
+                rgba(255, 255, 255, 0.10);
+
+            font-size: 16px;
         }
 
-        .panel-footer {
+        /* =====================================================
+           FOOTER
+        ====================================================== */
+
+        .brand-footer {
             position: relative;
             z-index: 2;
-            color: rgba(255,255,255,0.55);
-            font-size: 13px;
+
+            color:
+                rgba(255, 255, 255, 0.52);
+
+            font-size: 12px;
         }
 
-        /* =========================
+        /* =====================================================
            RIGHT PANEL
-        ========================== */
+        ====================================================== */
 
-        .login-panel {
+        .auth-panel {
             display: flex;
+
             align-items: center;
             justify-content: center;
-            padding: 50px 8%;
-            background: rgba(255,255,255,0.82);
+
+            min-height: 100vh;
+
+            padding:
+                48px
+                7%;
+
+            background:
+                rgba(255, 255, 255, 0.88);
+
+            backdrop-filter: blur(12px);
         }
 
-        .login-container {
+        .auth-container {
             width: 100%;
-            max-width: 440px;
+
+            max-width: 460px;
         }
+
+        /* =====================================================
+           MOBILE BRAND
+        ====================================================== */
 
         .mobile-brand {
             display: none;
         }
 
-        .login-header {
-            margin-bottom: 30px;
+        /* =====================================================
+           CARD
+        ====================================================== */
+
+        .auth-card {
+            padding: 38px;
+
+            border:
+                1px solid
+                rgba(226, 229, 238, 0.90);
+
+            border-radius: 22px;
+
+            background:
+                rgba(255, 255, 255, 0.96);
+
+            box-shadow: var(--shadow);
         }
 
-        .login-header h2 {
+        .auth-header {
+            margin-bottom: 28px;
+        }
+
+        .auth-kicker {
+            margin-bottom: 10px;
+
+            color: var(--primary);
+
+            font-size: 12px;
+
+            font-weight: 800;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.9px;
+        }
+
+        .auth-header h1 {
+            margin-bottom: 10px;
+
             font-size: 32px;
-            letter-spacing: -0.7px;
-            margin-bottom: 8px;
+
+            line-height: 1.15;
+
+            letter-spacing: -0.8px;
         }
 
-        .login-header p {
+        .auth-header p {
             color: var(--muted);
+
             font-size: 15px;
+
+            line-height: 1.65;
         }
 
-        /* =========================
-           VALIDATION
-        ========================== */
+        /* =====================================================
+           ALERTS
+        ====================================================== */
 
         .alert {
-            padding: 13px 15px;
-            border-radius: 9px;
-            margin-bottom: 20px;
-            font-size: 14px;
-        }
+            margin-bottom: 22px;
 
-        .alert-error {
-            background: #fff0f0;
-            border: 1px solid #ffd2d2;
-            color: #b42318;
+            padding: 14px 15px;
+
+            border-radius: 11px;
+
+            font-size: 13px;
+
+            line-height: 1.5;
         }
 
         .alert-success {
-            background: #edfff5;
-            border: 1px solid #c8f0d9;
-            color: #087443;
+            background: var(--success-bg);
+
+            border:
+                1px solid
+                var(--success-border);
+
+            color: var(--success-text);
         }
 
-        .field-errors {
-            margin-top: 6px;
-            color: #c62828;
-            font-size: 12px;
+        .alert-error {
+            background: var(--danger-bg);
+
+            border:
+                1px solid
+                var(--danger-border);
+
+            color: var(--danger-text);
         }
 
-        /* =========================
+        .alert ul {
+            margin: 0;
+
+            padding-left: 18px;
+        }
+
+        /* =====================================================
            FORM
-        ========================== */
+        ====================================================== */
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
         .form-label {
             display: block;
-            font-size: 14px;
-            font-weight: 650;
+
             margin-bottom: 8px;
+
             color: #303850;
+
+            font-size: 13px;
+
+            font-weight: 700;
         }
 
         .input-wrapper {
@@ -270,152 +521,201 @@
 
         .input-icon {
             position: absolute;
-            left: 15px;
+
+            left: 16px;
             top: 50%;
-            transform: translateY(-50%);
-            color: #8991a8;
-            font-size: 17px;
+
+            width: 18px;
+            height: 18px;
+
+            transform:
+                translateY(-50%);
+
+            color: #9198aa;
+
             pointer-events: none;
+        }
+
+        .input-icon svg {
+            width: 100%;
+            height: 100%;
         }
 
         .form-input {
             width: 100%;
-            height: 52px;
-            border: 1px solid var(--border);
-            border-radius: 10px;
-            background: white;
-            padding: 0 15px 0 45px;
+            height: 54px;
+
+            padding:
+                0
+                16px
+                0
+                46px;
+
+            border:
+                1px solid
+                var(--border);
+
+            border-radius: 12px;
+
             outline: none;
+
+            background: var(--white);
+
             color: var(--text);
-            font-size: 15px;
-            transition: 0.2s;
+
+            font-size: 14px;
+
+            transition:
+                border-color 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
         .form-input::placeholder {
-            color: #a0a6b7;
+            color: #a0a7b8;
+        }
+
+        .form-input:hover {
+            border-color: #cfd4e0;
         }
 
         .form-input:focus {
             border-color: var(--primary);
-            box-shadow: 0 0 0 4px rgba(91,45,204,0.10);
+
+            box-shadow:
+                0 0 0 4px
+                rgba(91, 45, 204, 0.10);
         }
 
-        .form-input.is-invalid {
-            border-color: #dc3545;
+        .field-error {
+            margin-top: 7px;
+
+            color: #c62828;
+
+            font-size: 12px;
         }
 
-        /* =========================
-           OPTIONS
-        ========================== */
+        /* =====================================================
+           PRIMARY BUTTON
+        ====================================================== */
 
-        .form-options {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin: 5px 0 25px;
-        }
-
-        .remember {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .remember input {
-            width: 16px;
-            height: 16px;
-            accent-color: var(--primary);
-        }
-
-        .forgot-password {
-            color: var(--primary);
-            font-size: 13px;
-            font-weight: 600;
-        }
-
-        .forgot-password:hover {
-            text-decoration: underline;
-        }
-
-        /* =========================
-           BUTTON
-        ========================== */
-
-        .login-button {
+        .primary-button {
             width: 100%;
-            height: 52px;
-            border: none;
-            border-radius: 10px;
-            background: linear-gradient(
-                135deg,
-                var(--primary),
-                #7046df
-            );
+            height: 54px;
+
+            display: inline-flex;
+
+            align-items: center;
+            justify-content: center;
+
+            gap: 9px;
+
+            border: 0;
+
+            border-radius: 12px;
+
+            background:
+                linear-gradient(
+                    135deg,
+                    var(--primary),
+                    #7046df
+                );
+
             color: white;
-            font-size: 15px;
-            font-weight: 700;
+
+            font-size: 14px;
+
+            font-weight: 800;
+
             cursor: pointer;
-            box-shadow: 0 10px 22px rgba(91,45,204,0.20);
-            transition: 0.2s;
+
+            box-shadow:
+                0 13px 28px
+                rgba(91, 45, 204, 0.22);
+
+            transition:
+                transform 0.2s ease,
+                box-shadow 0.2s ease;
         }
 
-        .login-button:hover {
-            background: linear-gradient(
-                135deg,
-                var(--primary-dark),
-                var(--primary)
-            );
+        .primary-button:hover {
             transform: translateY(-1px);
-            box-shadow: 0 13px 25px rgba(91,45,204,0.25);
+
+            box-shadow:
+                0 16px 32px
+                rgba(91, 45, 204, 0.28);
         }
 
-        .login-button:active {
+        .primary-button:active {
             transform: translateY(0);
         }
 
-        /* =========================
+        /* =====================================================
+           BACK TO LOGIN
+        ====================================================== */
+
+        .back-login {
+            margin-top: 22px;
+
+            padding-top: 20px;
+
+            border-top:
+                1px solid
+                #edf0f5;
+
+            text-align: center;
+        }
+
+        .back-login a {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 7px;
+
+            color: var(--primary);
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            transition: color 0.2s ease;
+        }
+
+        .back-login a:hover {
+            color: var(--primary-dark);
+        }
+
+        /* =====================================================
            REGISTER
-        ========================== */
+        ====================================================== */
 
         .register {
+            margin-top: 20px;
+
             text-align: center;
-            margin-top: 25px;
+
             color: var(--muted);
-            font-size: 14px;
+
+            font-size: 13px;
         }
 
         .register a {
             color: var(--primary);
-            font-weight: 700;
+
+            font-weight: 800;
         }
 
         .register a:hover {
             text-decoration: underline;
         }
 
-        .back-home {
-            text-align: center;
-            margin-top: 25px;
-        }
-
-        .back-home a {
-            color: #737b92;
-            font-size: 13px;
-        }
-
-        .back-home a:hover {
-            color: var(--primary);
-        }
-
-        /* =========================
+        /* =====================================================
            RESPONSIVE
-        ========================== */
+        ====================================================== */
 
-        @media (max-width: 850px) {
+        @media (max-width: 960px) {
 
-            .page {
+            .auth-page {
                 grid-template-columns: 1fr;
             }
 
@@ -423,43 +723,77 @@
                 display: none;
             }
 
-            .login-panel {
-                min-height: 100vh;
-                padding: 40px 6%;
+            .auth-panel {
+                padding:
+                    34px
+                    22px;
             }
 
             .mobile-brand {
-                display: flex;
+                display: inline-flex;
+
                 align-items: center;
                 justify-content: center;
-                gap: 10px;
-                margin-bottom: 40px;
+
+                gap: 11px;
+
+                margin:
+                    0
+                    auto
+                    28px;
             }
 
             .mobile-brand .brand-logo {
-                background: var(--light-purple);
+                width: 44px;
+                height: 44px;
+
+                background:
+                    var(--primary-light);
+
+                border:
+                    1px solid
+                    #ddd4fa;
+
                 color: var(--primary);
-                border: none;
+
+                box-shadow: none;
             }
 
             .mobile-brand .brand-name {
                 color: var(--primary);
             }
+
+            .mobile-brand .brand-subtitle {
+                color: var(--muted);
+            }
+
+            .auth-card {
+                padding: 30px 24px;
+
+                border-radius: 18px;
+            }
         }
 
-        @media (max-width: 500px) {
+        @media (max-width: 520px) {
 
-            .login-panel {
-                padding: 30px 20px;
+            .auth-panel {
+                padding:
+                    24px
+                    16px;
             }
 
-            .login-header h2 {
+            .auth-card {
+                padding: 24px 18px;
+
+                border-radius: 16px;
+
+                box-shadow:
+                    0 15px 35px
+                    rgba(23, 32, 59, 0.08);
+            }
+
+            .auth-header h1 {
                 font-size: 28px;
-            }
-
-            .form-options {
-                align-items: flex-start;
-                gap: 15px;
             }
         }
     </style>
@@ -467,73 +801,99 @@
 
 <body>
 
-<div class="page">
+<div class="auth-page">
 
-    {{-- =====================================
-         LEFT BRAND PANEL
-    ====================================== --}}
+    {{-- =========================================================
+         BRAND PANEL
+    ========================================================== --}}
 
     <section class="brand-panel">
 
-        <a href="{{ url('/') }}" class="brand">
+        <div class="brand-panel-content">
 
-            <div class="brand-logo">
-                🛡️
-            </div>
-
-            <div>
-                <div class="brand-name">
-                    CyberReadyAI
+            <a
+                href="{{ url('/') }}"
+                class="brand-link"
+            >
+                <div class="brand-logo">
+                    🛡️
                 </div>
 
-                <div class="brand-subtitle">
-                    Cybersecurity Awareness Platform
+                <div class="brand-text">
+
+                    <div class="brand-name">
+                        CyberReadyAI
+                    </div>
+
+                    <div class="brand-subtitle">
+                        Cybersecurity Awareness Platform
+                    </div>
+
                 </div>
+            </a>
+
+        </div>
+
+
+        <div class="brand-message">
+
+            <div class="eyebrow">
+                <span>🔐</span>
+                Account security
             </div>
 
-        </a>
-
-
-        <div class="panel-content">
 
             <h1>
-                Welcome back to
-                <span>CyberReadyAI.</span>
+                Keep your
+                <span>account secure.</span>
             </h1>
 
+
             <p>
-                Continue building a stronger security culture.
-                Access your training, assessments, reports and
-                cybersecurity resources from one secure platform.
+                Reset your CyberReadyAI password securely
+                and regain access to your cybersecurity
+                awareness workspace.
             </p>
 
-            <div class="security-items">
 
-                <div class="security-item">
-                    <div class="security-icon">
-                        🛡️
-                    </div>
-                    <span>
-                        Strengthen your organisation's security awareness
-                    </span>
-                </div>
+            <div class="trust-list">
 
-                <div class="security-item">
-                    <div class="security-icon">
-                        📊
-                    </div>
-                    <span>
-                        Track learning and assessment progress
-                    </span>
-                </div>
+                <div class="trust-item">
 
-                <div class="security-item">
-                    <div class="security-icon">
+                    <div class="trust-icon">
                         🔒
                     </div>
+
                     <span>
-                        Protect your people and digital environment
+                        Secure password recovery
                     </span>
+
+                </div>
+
+
+                <div class="trust-item">
+
+                    <div class="trust-icon">
+                        ✉️
+                    </div>
+
+                    <span>
+                        Reset instructions sent to your email
+                    </span>
+
+                </div>
+
+
+                <div class="trust-item">
+
+                    <div class="trust-icon">
+                        🛡️
+                    </div>
+
+                    <span>
+                        Protect your CyberReadyAI account
+                    </span>
+
                 </div>
 
             </div>
@@ -541,125 +901,224 @@
         </div>
 
 
-        <div class="panel-footer">
+        <div class="brand-footer">
             © {{ date('Y') }} CyberReadyAI. All rights reserved.
         </div>
 
     </section>
 
 
-    {{-- =====================================
-         LOGIN PANEL
-    ====================================== --}}
+    {{-- =========================================================
+         AUTH PANEL
+    ========================================================== --}}
 
-    <main class="login-panel">
+    <main class="auth-panel">
 
-        <div class="login-container">
+        <div class="auth-container">
 
             {{-- Mobile brand --}}
 
-            <a href="{{ url('/') }}" class="mobile-brand">
-
+            <a
+                href="{{ url('/') }}"
+                class="mobile-brand"
+            >
                 <div class="brand-logo">
                     🛡️
                 </div>
 
-                <div class="brand-name">
-                    CyberReadyAI
+                <div class="brand-text">
+
+                    <div class="brand-name">
+                        CyberReadyAI
+                    </div>
+
+                    <div class="brand-subtitle">
+                        Cybersecurity Awareness Platform
+                    </div>
+
                 </div>
 
             </a>
 
 
-            <div class="login-header">
+            <div class="auth-card">
 
-             <div class="assessment-card">
+                {{-- Header --}}
 
-        <h1>Forgot your password?</h1>
+                <div class="auth-header">
 
-        <p>
-            Enter your email address and we will send you
-            a password reset link.
-        </p>
+                    <div class="auth-kicker">
+                        Password recovery
+                    </div>
 
-        @if(session('status'))
-            <div class="status-badge">
-                {{ session('status') }}
-            </div>
-        @endif
+                    <h1>
+                        Forgot your password?
+                    </h1>
 
-        @if($errors->any())
-            <div class="result-message">
-                @foreach($errors->all() as $error)
-                    <p>{{ $error }}</p>
-                @endforeach
-            </div>
-        @endif
+                    <p>
+                        Enter the email address associated
+                        with your account and we'll send you
+                        a password reset link.
+                    </p>
 
-        <form
-            method="POST"
-            action="{{ route('password.email') }}"
-        >
-            @csrf
+                </div>
 
-            <div class="form-group">
 
-                <label for="email">
-                    Email Address
-                </label>
+                {{-- Success message --}}
 
-                <input
-                    id="email"
-                    type="email"
-                    name="email"
-                    value="{{ old('email') }}"
-                    required
-                    autofocus
-                    autocomplete="email"
+                @if(session('status'))
+
+                    <div class="alert alert-success">
+                        {{ session('status') }}
+                    </div>
+
+                @endif
+
+
+                {{-- Validation errors --}}
+
+                @if($errors->any())
+
+                    <div class="alert alert-error">
+
+                        <ul>
+
+                            @foreach($errors->all() as $error)
+
+                                <li>
+                                    {{ $error }}
+                                </li>
+
+                            @endforeach
+
+                        </ul>
+
+                    </div>
+
+                @endif
+
+
+                {{-- Password reset form --}}
+
+                <form
+                    method="POST"
+                    action="{{ route('password.email') }}"
                 >
-
-            </div>
-
-            <button
-                type="submit"
-                class="btn btn-primary"
-            >
-                Send Password Reset Link
-            </button>
-
-        </form>
-
-        <p>
-            <a href="{{ route('login') }}">
-                Back to Login
-            </a>
-        </p>
-
-    </div>
+                    @csrf
 
 
-            {{-- Register --}}
+                    <div class="form-group">
 
-            @if (Route::has('register'))
+                        <label
+                            for="email"
+                            class="form-label"
+                        >
+                            Email address
+                        </label>
 
-                <div class="register">
 
-                    Don't have an account?
+                        <div class="input-wrapper">
 
-                    <a href="{{ route('register') }}">
-                        Create an account
+                            <span class="input-icon">
+
+                                <svg
+                                    viewBox="0 0 24 24"
+                                    fill="none"
+                                    stroke="currentColor"
+                                    stroke-width="1.8"
+                                    stroke-linecap="round"
+                                    stroke-linejoin="round"
+                                    aria-hidden="true"
+                                >
+                                    <rect
+                                        x="3"
+                                        y="5"
+                                        width="18"
+                                        height="14"
+                                        rx="2"
+                                    ></rect>
+
+                                    <path
+                                        d="m3 7 9 6 9-6"
+                                    ></path>
+
+                                </svg>
+
+                            </span>
+
+
+                            <input
+                                id="email"
+                                type="email"
+                                name="email"
+                                value="{{ old('email') }}"
+                                class="form-input @error('email') is-invalid @enderror"
+                                placeholder="you@example.com"
+                                autocomplete="email"
+                                autofocus
+                                required
+                            >
+
+                        </div>
+
+
+                        @error('email')
+
+                            <div class="field-error">
+                                {{ $message }}
+                            </div>
+
+                        @enderror
+
+                    </div>
+
+
+                    <button
+                        type="submit"
+                        class="primary-button"
+                    >
+                        <span>
+                            Send password reset link
+                        </span>
+                    </button>
+
+                </form>
+
+
+                {{-- Back to login --}}
+
+                <div class="back-login">
+
+                    <a href="{{ route('login') }}">
+
+                        <span>
+                            ←
+                        </span>
+
+                        <span>
+                            Back to Login
+                        </span>
+
                     </a>
 
                 </div>
 
-            @endif
 
+                {{-- Register --}}
 
-            <div class="back-home">
+                @if(Route::has('register'))
 
-                <a href="{{ url('/') }}">
-                    ← Back to CyberReadyAI
-                </a>
+                    <div class="register">
+
+                        Don't have an account?
+
+                        <a href="{{ route('register') }}">
+                            Create an account
+                        </a>
+
+                    </div>
+
+                @endif
 
             </div>
 
