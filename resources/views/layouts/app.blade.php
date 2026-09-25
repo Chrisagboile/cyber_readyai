@@ -272,7 +272,6 @@
                 >
                     Assessments
                 </a>
-
                 <a
                     href="{{ route('manager.team-readiness') }}"
                     class="nav-link"
