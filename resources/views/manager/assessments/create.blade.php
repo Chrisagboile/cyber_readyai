@@ -16,7 +16,7 @@
         </div>
 
         <a
-            href="{{ route('organisation.assessments') }}"
+            href="{{ route('manager.assessments.index') }}"
             class="assessment-back-link"
         >
             ← Back to Assessments
@@ -56,7 +56,7 @@
 
         <form
             method="POST"
-            action="{{ route('organisation.assessments.generate') }}"
+            action="{{ route('manager.assessments.generate') }}"
         >
             @csrf
 
@@ -272,7 +272,7 @@
             <div class="assessment-form-actions">
 
                 <a
-                    href="{{ route('organisation.assessments') }}"
+                    href="{{ route('manager.assessments.index') }}"
                     class="assessment-cancel-button"
                 >
                     Cancel

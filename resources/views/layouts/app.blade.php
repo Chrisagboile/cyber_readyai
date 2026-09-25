@@ -266,6 +266,12 @@
                 >
                     Dashboard
                 </a>
+                <a
+                    href="{{ route('manager.assessments.index') }}"
+                    class="nav-link"
+                >
+                    Assessments
+                </a>
 
                 <a
                     href="{{ route('manager.team-readiness') }}"
