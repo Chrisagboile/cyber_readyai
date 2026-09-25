@@ -1,0 +1,48 @@
+[1mdiff --git a/resources/views/layouts/app.blade.php b/resources/views/layouts/app.blade.php[m
+[1mindex da19e9e..5f4acdb 100644[m
+[1m--- a/resources/views/layouts/app.blade.php[m
+[1m+++ b/resources/views/layouts/app.blade.php[m
+[36m@@ -266,6 +266,12 @@[m [mclass="nav-link"[m
+                 >[m
+                     Dashboard[m
+                 </a>[m
+[32m+[m[32m                <a[m
+[32m+[m[32m                    href="{{ route('manager.assessments.index') }}"[m
+[32m+[m[32m                    class="nav-link"[m
+[32m+[m[32m                >[m
+[32m+[m[32m                    Assessments[m
+[32m+[m[32m                </a>[m
+ [m
+                 <a[m
+                     href="{{ route('manager.team-readiness') }}"[m
+[1mdiff --git a/resources/views/manager/assessments/create.blade.php b/resources/views/manager/assessments/create.blade.php[m
+[1mindex 2e0f25c..1db8894 100644[m
+[1m--- a/resources/views/manager/assessments/create.blade.php[m
+[1m+++ b/resources/views/manager/assessments/create.blade.php[m
+[36m@@ -16,7 +16,7 @@[m
+         </div>[m
+ [m
+         <a[m
+[31m-            href="{{ route('organisation.assessments') }}"[m
+[32m+[m[32m            href="{{ route('manager.assessments.index') }}"[m
+             class="assessment-back-link"[m
+         >[m
+             ← Back to Assessments[m
+[36m@@ -56,7 +56,7 @@[m [mclass="assessment-back-link"[m
+ [m
+         <form[m
+             method="POST"[m
+[31m-            action="{{ route('organisation.assessments.generate') }}"[m
+[32m+[m[32m            action="{{ route('manager.assessments.generate') }}"[m
+         >[m
+             @csrf[m
+ [m
+[36m@@ -272,7 +272,7 @@[m [mclass="assessment-back-link"[m
+             <div class="assessment-form-actions">[m
+ [m
+                 <a[m
+[31m-                    href="{{ route('organisation.assessments') }}"[m
+[32m+[m[32m                    href="{{ route('manager.assessments.index') }}"[m
+                     class="assessment-cancel-button"[m
+                 >[m
+                     Cancel[m
