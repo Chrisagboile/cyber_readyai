@@ -254,11 +254,12 @@
                 </a>
 
             @endif
-
-
             {{-- Manager --}}
             @if(auth()->check() && auth()->user()->hasRole('manager'))
-                <div class="nav-title">Management</div>
+
+                <div class="nav-title">
+                    Management
+                </div>
 
                 <a
                     href="{{ route('manager.dashboard') }}"
@@ -266,12 +267,14 @@
                 >
                     Dashboard
                 </a>
+
                 <a
                     href="{{ route('manager.assessments.index') }}"
                     class="nav-link"
                 >
                     Assessments
                 </a>
+
                 <a
                     href="{{ route('manager.team-readiness') }}"
                     class="nav-link"
@@ -294,8 +297,6 @@
                 </a>
 
             @endif
-
-
             {{-- Employee --}}
             @if(auth()->check() && auth()->user()->hasRole('employee'))
 
