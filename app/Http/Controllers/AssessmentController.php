@@ -586,78 +586,57 @@ public function result(
         'aiInsight',
     ]);
 
-    $insight = null;
+    $insight = $attempt->aiInsight;
 
     if (in_array($attempt->status, ['completed', 'expired'], true)) {
-        $insight = $attempt->aiInsight;
 
+        /*
+         * AI insight is optional.
+         *
+         * The assessment result must still be available when
+         * OpenAI is temporarily unavailable, rate-limited, or
+         * returns an invalid response.
+         */
         if (! $insight) {
-            $insight = $aiService->generate($attempt);
 
-            $attempt->load('aiInsight');
-            $insight = $attempt->aiInsight;
+            try {
+
+                $insight = $aiService->generate($attempt);
+
+                if ($insight) {
+                    $attempt->load('aiInsight');
+                    $insight = $attempt->aiInsight;
+                }
+
+            } catch (\Throwable $exception) {
+
+                report($exception);
+
+                $insight = null;
+            }
         }
 
+        /*
+         * Learning plans are generated only when an AI insight
+         * was successfully created.
+         */
         if ($insight) {
-            $aiService->createLearningPlans($attempt);
+            try {
+                $aiService->createLearningPlans($attempt);
+            } catch (\Throwable $exception) {
+                report($exception);
+            }
         }
     }
 
-    return view('assessment.result', compact('attempt', 'insight'));
-}
-
-  // here
- /*   public function result(
-        Request $request,
-        AssessmentAttempt $attempt,
-        AiAssessmentInsightService $aiService
-    ) {
-    /*    dd([
-    'user_id' => $request->user()->id,
-    'role' => $request->user()->role?->slug,
-    'attempt_id' => $attempt->id,
-    'attempt_user_id' => $attempt->user_id,
-]);*/
-        /*$this->authoriseAttempt(
-            $request,
-            $attempt
-        );
-
-        $attempt->load([
-            'assessment',
-            'answers.question.category',
-            'answers.option',
-            'aiInsight',
-        ]);
-
-        $insight = null;
-
-        if (
-            $attempt->status === 'completed'
-            || $attempt->status === 'expired'
-        ) {
-            $insight = $attempt->aiInsight;
-
-        if (!$insight) {
-            $insight = $aiService->generate($attempt);
-
-            if ($insight) {
-                $attempt->load('aiInsight');
-
-                $aiService->createLearningPlans($attempt);
-            }
-        }
-        }
-
-        return view(
-            'assessment.result',
-            compact(
-                'attempt',
-                'insight'
-            )
-        );
-    } */
-    private function completeAttempt(
+    return view(
+        'assessment.result',
+        compact(
+            'attempt',
+            'insight'
+        )
+    );
+}    private function completeAttempt(
         AssessmentAttempt $attempt
     ): void {
         $correctAnswers = $attempt
