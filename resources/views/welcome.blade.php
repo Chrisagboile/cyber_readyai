@@ -572,27 +572,29 @@
             </div>
 
         </a>
-
         <nav class="nav-links">
 
             <a href="{{ url('/') }}" class="active">
                 Home
             </a>
 
-            <a href="#features">
-                Features
-            </a>
-
-            <a href="#about">
+            <a href="{{ url('/webpage/about.html') }}">
                 About
             </a>
 
-            <a href="#contact">
+            <a href="{{ url('/webpage/services.html') }}">
+                Services
+            </a>
+
+            <a href="{{ url('/webpage/contact.html') }}">
                 Contact
             </a>
 
-        </nav>
+            <a href="{{ url('/webpage/donate.html') }}">
+                Donate
+            </a>
 
+        </nav>
         <div class="nav-actions">
 
             @auth

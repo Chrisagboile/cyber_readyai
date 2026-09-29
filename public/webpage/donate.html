@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tekbiserv Ltd UK | Donate</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <nav>
+        <div class="logo">
+            Tekbiserv Ltd
+        </div>
+
+        <button class="menu-toggle" id="menu-toggle" aria-label="Open navigation menu">
+            ☰
+        </button>
+
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html">HOME</a></li>
+            <li><a href="services.html">SERVICES</a></li>
+            <li><a href="about.html">ABOUT</a></li>
+            <li><a href="contact.html">CONTACT</a></li>
+            <li><a href="donate.html" class="active">DONATE</a></li>
+        </ul>
+    </nav>
+
+    <section class="donate-hero">
+        <h1>Support the Future of Tech Education</h1>
+        <p>
+            Your donation helps us provide practical technology training,
+            mentorship, and career opportunities to aspiring professionals.
+        </p>
+
+        <div class="donation-options">
+            <button class="donation-btn">£10</button>
+            <button class="donation-btn">£25</button>
+            <button class="donation-btn">£50</button>
+            <button class="donation-btn" id="other-amount-btn">Other Amount</button>
+           
+
+            <div class="custom-amount" id="custom-amount"> <!--Ho does this work with the variables created in donate.js-->
+                <label for="custom-donation">Enter amount (£):</label>
+                <input type="number" id="custom-donation" min="1" placeholder="e.g. 30">
+            </div> <!--Ho does this work with the variables created in donate.js-->
+
+        </div>
+        <button class="continue-btn" id ="continue-btn"> Continue Donation </button>
+
+        <p id="donation-error"></p>
+
+    </section>
+
+    <script src="donate.js"></script>
+
+ <script src="script.js"></script>
+</body>
+</html>

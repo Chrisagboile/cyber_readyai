@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Tekbiserv Ltd UK | Donation</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <nav>
+        <div class="logo">
+            Tekbiserv Ltd
+        </div>
+
+        <button class="menu-toggle" id="menu-toggle" aria-label="Open navigation menu">
+            ☰
+        </button>
+
+        <ul class="nav-links" id="nav-links">
+            <li><a href="index.html">HOME</a></li>
+            <li><a href="services.html">SERVICES</a></li>
+            <li><a href="about.html">ABOUT</a></li>
+            <li><a href="contact.html">CONTACT</a></li>
+            <li><a href="donate.html" class="active">DONATE</a></li>
+        </ul>
+    </nav>
+
+
+    <section class="confirmation">
+
+        <h1>Thank You for Supporting Tekbiserv</h1>
+
+        <p>
+            You have chosen to donate:
+        </p>
+
+        <h2 id="donation-display">£0</h2>
+
+        <button class="continue-btn" id="payment-btn">
+            Continue to Payment
+        </button>
+
+    </section>
+
+    <script>
+    const params = new URLSearchParams(window.location.search);
+    const amount = params.get("amount");
+    document.getElementById("donation-display").textContent = amount;
+    </script>
+
+    <script src="payment.js"></script>
+</body>
+</html>
