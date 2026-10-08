@@ -852,13 +852,26 @@
 
                 <b>→</b>
             </a>
+            <a
+                href="{{ route('feedback-reports.index') }}"
+                class="super-admin-action"
+            >
+                <div class="super-admin-action-icon">
+                    F
+                </div>
 
+                <div>
+                    <strong>Feedback Reports</strong>
+                    <span>Review PublicTest feedback and assessment responses.</span>
+                </div>
+
+                <b>→</b>
+            </a>
         </div>
 
     </div>
 
 </div>
-
 
 <style>
 .super-admin-dashboard {

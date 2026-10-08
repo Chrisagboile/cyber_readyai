@@ -1,8 +1,7 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use App\Models\PublicTestFeedback;
+use App\Modules\PublicTest\Models\PublicTestFeedback;
 use Illuminate\Http\Request;
 
 class FeedbackReportController extends Controller
