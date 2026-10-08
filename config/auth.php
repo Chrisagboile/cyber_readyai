@@ -38,9 +38,15 @@ return [
     */
 
     'guards' => [
+
         'web' => [
             'driver' => 'session',
             'provider' => 'users',
+        ],
+
+        'public_test' => [
+            'driver' => 'session',
+            'provider' => 'public_test_users',
         ],
     ],
 
@@ -60,17 +66,18 @@ return [
     | Supported: "database", "eloquent"
     |
     */
+        'providers' => [
 
-    'providers' => [
         'users' => [
             'driver' => 'eloquent',
             'model' => env('AUTH_MODEL', User::class),
         ],
 
-        // 'users' => [
-        //     'driver' => 'database',
-        //     'table' => 'users',
-        // ],
+        'public_test_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Modules\PublicTest\Models\PublicTestUser::class,
+        ],
+
     ],
 
     /*

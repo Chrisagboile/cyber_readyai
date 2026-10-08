@@ -22,6 +22,8 @@ use App\Http\Controllers\SuperAdminDashboardController;
 use App\Http\Controllers\SuperAdminOrganisationController;
 use App\Http\Controllers\SuperAdminSubscriptionController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\FeedbackReportController;
+
 // use  Illuminate\Support\Facades\Auth;
 /*
 |--------------------------------------------------------------------------
@@ -55,6 +57,16 @@ Route::post('/register', [AuthController::class, 'register'])
 Route::post('/logout', [AuthController::class, 'logout'])
     ->name('logout');
 
+Route::get(
+    '/feedback-reports',
+    [FeedbackReportController::class, 'index']
+)->name('feedback-reports.index');
+
+Route::get(
+    '/feedback-reports/{feedback}',
+    [FeedbackReportController::class, 'show']
+)->name('feedback-reports.show');
+
 /*
 |--------------------------------------------------------------------------
 | Authenticated Dashboard
@@ -63,30 +75,7 @@ Route::post('/logout', [AuthController::class, 'logout'])
 
 Route::middleware(['auth', 'verified'])->group(function () {
 
-/*
-    Route::get('/dashboard', function () {
-        $role = auth()->user()->role?->slug;
-
-        return match ($role) {
-
-            'super-admin' =>
-                view('dashboard.super-admin'),
-
-            'organisation-admin' =>
-                redirect()->route('organisation.dashboard'),
-
-            'manager' =>
-                view('dashboard.manager'),
-
-            'employee' =>
-                view('dashboard.employee'),
-
-            default =>
-                abort(403, 'No valid role assigned to this account.'),
-        };
-
-    })->name('dashboard');
-    */Route::get('/dashboard', function () {
+Route::get('/dashboard', function () {
     $user = auth()->user();
 
     return match ($user->role?->slug) {
@@ -128,15 +117,6 @@ Route::middleware(['auth', 'verified', 'role:super-admin'])
             '/dashboard',
             [SuperAdminDashboardController::class, 'index']
         )->name('admin.dashboard');
-/*
-        Route::get('/dashboard', function () {
-            return view('dashboard.super-admin');
-        })->name('admin.dashboard');
-
-        Route::get('/tenants', function () {
-            return view('tenants.index');
-        })->name('tenants.index');
-*/
         Route::get(
             '/tenants',
             [SuperAdminOrganisationController::class, 'index']
@@ -167,11 +147,6 @@ Route::middleware(['auth', 'verified', 'role:super-admin'])
             [SuperAdminOrganisationController::class, 'toggleStatus']
         )->name('tenants.toggle-status');
 
-/*
-        Route::get('/subscriptions', function () {
-            return view('subscriptions.index');
-        })->name('subscriptions.index');
-*/
     Route::get(
         '/subscriptions',
         [SuperAdminSubscriptionController::class, 'index']
@@ -201,20 +176,10 @@ Route::middleware(['auth', 'verified', 'role:super-admin'])
         '/subscriptions/{subscription}/cancel',
         [SuperAdminSubscriptionController::class, 'cancel']
     )->name('subscriptions.cancel');
-/*
-        Route::get('/analytics', function () {
-            return view('analytics.index');
-        })->name('analytics.index');
-*/
     Route::get(
         '/analytics',
         [SuperAdminAnalyticsController::class, 'index']
     )->name('analytics.index');
-
- /*   Route::get('/billing', function () {
-            return view('billing.index');
-        })->name('billing.index');
-*/
 
     Route::get(
         '/billing',
@@ -289,15 +254,7 @@ Route::middleware(['auth', 'verified', 'role:organisation-admin'])
             [OrganisationAssessmentController::class, 'generate']
         )->name('organisation.assessments.generate');
 
-/*
-        Route::get('/assessments', function () {
-            return view('assessments.index');
-        })->name('organisation.assessments');
 
-        Route::get('/reports', function () {
-            return view('reports.index');
-        })->name('organisation.reports');
-*/
         Route::get(
             '/reports',
             [OrganisationReportController::class, 'index']
@@ -313,10 +270,6 @@ Route::middleware(['auth', 'verified', 'role:organisation-admin'])
             [OrganisationTrainingController::class, 'index']
         )->name('organisation.training');
 
-  /*      Route::get('/training', function () {
-            return view('training.index');
-        })->name('organisation.training');
-*/
     });
 /*
 |--------------------------------------------------------------------------
@@ -331,24 +284,10 @@ Route::middleware(['auth', 'verified', 'role:manager'])
         Route::get('/dashboard', function () {
             return view('dashboard.manager');
         })->name('manager.dashboard');
-/*
-        Route::get('/team-readiness', function () {
-            return view('manager.team-readiness');
-        })->name('manager.team-readiness');
-
-        Route::get('/department-reports', function () {
-            return view('manager.department-reports');
-        })->name('manager.department-reports');
-*/
         Route::get(
             '/department-reports',
             [ManagerDepartmentReportsController::class, 'index']
         )->name('manager.department-reports');
-
-/*
-        Route::get('/risk-dashboard', function () {
-            return view('manager.risk-dashboard');
-        })->name('manager.risk-dashboard');*/
 
         Route::get(
             '/risk-dashboard',
@@ -381,22 +320,8 @@ Route::middleware(['auth', 'verified', 'role:employee'])
             return redirect()->route('assessment.index');
         })->name('employee.assessments');
 
-        /*
-        Route::get('/assessments', function () {
-            return view('employee.assessments');
-        })->name('employee.assessments');
-
-       Route::get('/score', function () {
-            return view('employee.score');
-        })->name('employee.score');
-*/
         Route::get('/score', [EmployeeController::class, 'score'])
          ->name('employee.score');
-/*
-         Route::get('/learning-plans', function () {
-            return view('employee.learning-plans');
-        })->name('employee.learning-plans');
-*/
 
 
 	Route::get('/learning-plans', [LearningPlanController::class, 'index'])
@@ -405,61 +330,11 @@ Route::middleware(['auth', 'verified', 'role:employee'])
 
     Route::patch('/employee/learning-plans/{learningPlan}/status', [LearningPlanController::class, 'updateStatus'])
         ->name('employee.learning-plans.status');
-//Route::middleware(['auth', 'verified'])->group(function () {
-
     /*
     |--------------------------------------------------------------------------
     | Assessment
     |--------------------------------------------------------------------------
     */
-    /*
-    Route::middleware([
-        'auth',
-        'verified',
-        'role:employee',
-    ])->group(function () {
-        // assessment routes
-    Route::get(
-        '/assessments',
-        [AssessmentController::class, 'index']
-    )->name('assessment.index');
-    Route::get(
-        '/assessment/{attempt}/question/{question}/previous',
-        [AssessmentController::class, 'previous']
-    )->name('assessment.previous');
-
-    Route::get(
-        '/assessment/{assessment}/start',
-        [AssessmentController::class, 'start']
-    )->name('assessment.start');
-
-    Route::get(
-        '/assessment/{attempt}/question/{question}',
-        [AssessmentController::class, 'question']
-    )->name('assessment.question');
-
-    Route::post(
-        '/assessment/{attempt}/question/{question}',
-        [AssessmentController::class, 'answer']
-    )->name('assessment.answer');
-
-    Route::get(
-        '/assessment/{attempt}/review',
-        [AssessmentController::class, 'review']
-    )->name('assessment.review');
-
-    Route::post(
-        '/assessment/{attempt}/submit',
-        [AssessmentController::class, 'submit']
-    )->name('assessment.submit');
-
-    Route::get(
-        '/assessment/{attempt}/result',
-        [AssessmentController::class, 'result']
-    )->name('assessment.result');
-
-  //  });
- });*/
 
  // Employee assessment routes
     Route::middleware([
@@ -557,22 +432,6 @@ Route::middleware('guest')->group(function () {
         'verified',
         'role:manager'
     ])->prefix('manager')->name('manager.')->group(function () {
-/*
-    Route::get(
-        '/manager/assessments',
-        [ManagerAssessmentController::class, 'index']
-    )->name('manager.assessments.index');
-
-    Route::get(
-        '/manager/assessments/create',
-        [ManagerAssessmentController::class, 'create']
-    )->name('manager.assessments.create');
-
-    Route::post(
-        '/manager/assessments',
-        [ManagerAssessmentController::class, 'generate']
-    )->name('manager.assessments.generate');
-*/
         Route::get(
             '/assessments',
             [ManagerAssessmentController::class, 'index']
@@ -620,3 +479,9 @@ Route::middleware([
     Route::resource('departments', DepartmentController::class);
 
 });
+/*
+|--------------------------------------------------------------------------
+| Public CyberReadyAI Test
+|--------------------------------------------------------------------------
+*/
+require base_path('routes/public_test.php');
