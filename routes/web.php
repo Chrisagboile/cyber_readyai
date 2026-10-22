@@ -1,4 +1,5 @@
 <?php
+use App\Http\Controllers\PhishingCampaignController;
 use App\Http\Controllers\AssessmentController;
 use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
@@ -100,7 +101,39 @@ Route::get('/dashboard', function () {
 
 })->name('dashboard');
 
+
+
 });
+
+
+Route::middleware(['auth', 'verified'])->prefix('phishing')->name('phishing.')->group(function () {
+    // Campaign management: controller enforces role and organisation access.
+    Route::get('/campaigns', [PhishingCampaignController::class, 'index'])
+        ->name('index');
+
+    Route::get('/campaigns/create', [PhishingCampaignController::class, 'create'])
+        ->name('create');
+
+    Route::post('/campaigns', [PhishingCampaignController::class, 'store'])
+        ->name('store');
+
+    Route::get('/campaigns/{campaign}', [PhishingCampaignController::class, 'show'])
+        ->name('show');
+
+    Route::post('/campaigns/{campaign}/launch', [PhishingCampaignController::class, 'launch'])
+        ->name('launch');
+
+    // Employee simulations.
+    Route::get('/my-simulations', [PhishingCampaignController::class, 'employeeIndex'])
+        ->name('employee');
+
+    Route::get('/simulation/{recipient}', [PhishingCampaignController::class, 'openSimulation'])
+        ->name('open');
+
+    Route::post('/simulation/{recipient}/report', [PhishingCampaignController::class, 'reportSimulation'])
+        ->name('report');
+});
+
 
 
 /*

@@ -211,6 +211,10 @@
                     Billing
                 </a>
 
+                <a href="{{ route('phishing.index') }}"
+                class="{{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}">
+                    Phishing Simulations
+                </a>
             @endif
 
 
@@ -252,7 +256,10 @@
                 >
                     Training
                 </a>
-
+                <a href="{{ route('phishing.index') }}"
+                class="{{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}">
+                    Phishing Simulations
+                </a>
             @endif
             {{-- Manager --}}
             @if(auth()->check() && auth()->user()->hasRole('manager'))
@@ -295,6 +302,10 @@
                 >
                     Risk Dashboard
                 </a>
+                <a href="{{ route('phishing.index') }}"
+                class="{{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}">
+                    Phishing Simulations
+                </a>
 
             @endif
             {{-- Employee --}}
@@ -329,7 +340,10 @@
                 >
                     Learning Plans
                 </a>
-
+                <a href="{{ route('phishing.employee') }}"
+                class="{{ request()->routeIs('phishing.employee', 'phishing.open') ? 'active' : '' }}">
+                    My Phishing Simulations
+                </a>
             @endif
 
         </nav>
