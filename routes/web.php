@@ -518,3 +518,5 @@ Route::middleware([
 |--------------------------------------------------------------------------
 */
 require base_path('routes/public_test.php');
+
+require base_path('routes/pension_guard.php');

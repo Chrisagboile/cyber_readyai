@@ -48,6 +48,11 @@ return [
             'driver' => 'session',
             'provider' => 'public_test_users',
         ],
+        'pension_guard' => [
+            'driver' => 'session',
+            'provider' => 'pension_guard_users',
+        ],
+
     ],
 
     /*
@@ -77,7 +82,10 @@ return [
             'driver' => 'eloquent',
             'model' => App\Modules\PublicTest\Models\PublicTestUser::class,
         ],
-
+        'pension_guard_users' => [
+            'driver' => 'eloquent',
+            'model' => App\Modules\PensionAccountGuard\Models\PensionGuardUser::class,
+        ],
     ],
 
     /*
