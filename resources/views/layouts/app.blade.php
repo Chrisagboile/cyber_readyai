@@ -171,9 +171,9 @@
                 Dashboard
             </a>
 
-
             {{-- Super Admin --}}
-            @if(auth()->check() && auth()->user()->hasRole('super-admin'))
+            @if(auth()->guard('web')->check() && auth()->guard('web')->user()->hasRole('super-admin'))
+
                 <div class="nav-title">Administration</div>
 
                 <a
@@ -211,15 +211,18 @@
                     Billing
                 </a>
 
-                <a href="{{ route('phishing.index') }}"
-                class="{{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}">
+                <a
+                    href="{{ route('phishing.index') }}"
+                    class="nav-link {{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}"
+                >
                     Phishing Simulations
                 </a>
+
             @endif
 
-
             {{-- Organisation Admin --}}
-            @if(auth()->check() && auth()->user()->hasRole('organisation-admin'))
+            @if(auth()->guard('web')->check() && auth()->guard('web')->user()->hasRole('organisation-admin'))
+
                 <div class="nav-title">Organisation</div>
 
                 <a
@@ -256,13 +259,18 @@
                 >
                     Training
                 </a>
-                <a href="{{ route('phishing.index') }}"
-                class="{{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}">
+
+                <a
+                    href="{{ route('phishing.index') }}"
+                    class="nav-link {{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}"
+                >
                     Phishing Simulations
                 </a>
+
             @endif
+
             {{-- Manager --}}
-            @if(auth()->check() && auth()->user()->hasRole('manager'))
+            @if(auth()->guard('web')->check() && auth()->guard('web')->user()->hasRole('manager'))
 
                 <div class="nav-title">
                     Management
@@ -302,14 +310,18 @@
                 >
                     Risk Dashboard
                 </a>
-                <a href="{{ route('phishing.index') }}"
-                class="{{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}">
+
+                <a
+                    href="{{ route('phishing.index') }}"
+                    class="nav-link {{ request()->routeIs('phishing.index', 'phishing.create', 'phishing.show') ? 'active' : '' }}"
+                >
                     Phishing Simulations
                 </a>
 
             @endif
+
             {{-- Employee --}}
-            @if(auth()->check() && auth()->user()->hasRole('employee'))
+            @if(auth()->guard('web')->check() && auth()->guard('web')->user()->hasRole('employee'))
 
                 <div class="nav-title">My Learning</div>
 
@@ -340,75 +352,82 @@
                 >
                     Learning Plans
                 </a>
-                <a href="{{ route('phishing.employee') }}"
-                class="{{ request()->routeIs('phishing.employee', 'phishing.open') ? 'active' : '' }}">
+
+                <a
+                    href="{{ route('phishing.employee') }}"
+                    class="nav-link {{ request()->routeIs('phishing.employee', 'phishing.open') ? 'active' : '' }}"
+                >
                     My Phishing Simulations
                 </a>
+
             @endif
 
         </nav>
 
     </aside>
 
-@auth
-    {{-- Main Content --}}
-    <main class="main">
+    {{-- Authenticated Main Content --}}
+    @auth('web')
 
-        <header class="topbar">
+        <main class="main">
 
-            <div>
-                <strong>
-                    @yield('page-heading', 'Dashboard')
-                </strong>
-            </div>
-
-            <div class="user-info">
-
-                <div class="avatar">
-                    {{ strtoupper(substr(auth()->user()->name, 0, 1)) }}
-                </div>
+            <header class="topbar">
 
                 <div>
                     <strong>
-                        {{ auth()->user()->name }}
+                        @yield('page-heading', 'Dashboard')
                     </strong>
-
-                    <br>
-
-                    <small style="color: #6b7280;">
-                        {{ auth()->user()->role?->name }}
-                    </small>
                 </div>
-    @endauth
-            <a href="{{ route('profile.edit') }}">
-                My Profile
-            </a>
-        <form
-                    method="POST"
-                    action="{{ route('logout') }}"
-                >
-                    @csrf
 
-                    <button
-                        type="submit"
-                        class="logout-btn"
+                <div class="user-info">
+
+                    <div class="avatar">
+                        {{ strtoupper(substr(auth()->guard('web')->user()->name, 0, 1)) }}
+                    </div>
+
+                    <div>
+                        <strong>
+                            {{ auth()->guard('web')->user()->name }}
+                        </strong>
+
+                        <br>
+
+                        <small style="color: #6b7280;">
+                            {{ auth()->guard('web')->user()->role?->name }}
+                        </small>
+                    </div>
+
+                    <a href="{{ route('profile.edit') }}">
+                        My Profile
+                    </a>
+
+                    <form
+                        method="POST"
+                        action="{{ route('logout') }}"
                     >
-                        Logout
-                    </button>
-                </form>
+                        @csrf
 
-            </div>
+                        <button
+                            type="submit"
+                            class="logout-btn"
+                        >
+                            Logout
+                        </button>
+                    </form>
 
-        </header>
+                </div>
 
+            </header>
 
-        <section class="content">
+            <section class="content">
 
-            @yield('content')
+                @yield('content')
 
-        </section>
+            </section>
 
-    </main>
+        </main>
+
+    @endauth
 
 </div>
 
